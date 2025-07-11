@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard POS - Data Barang</title>
+
+  <style>
+    /* --- Body & Layout --- */
+    body, html {
+      margin: 0; padding: 0;
+      font-family: Arial, sans-serif;
+      background: #ecf0f1;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .dashboard-container {
+      display: flex; height: 100vh; max-width: 1400px; margin: 0 auto;
+      background: white; box-shadow: 0 0 12px rgba(0,0,0,0.15);
+      width: 100vw;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 280px; background-color: #2c3e50; color: white;
+      padding: 40px 25px; box-sizing: border-box; font-size: 18px;
+    }
+    .sidebar h2 {
+      margin-top: 0; font-size: 28px; font-weight: bold;
+      text-align: center; margin-bottom: 40px;
+    }
+    .sidebar nav ul {
+      list-style: none; padding-left: 0; margin: 0;
+    }
+    .sidebar nav ul li {
+      margin-bottom: 25px;
+    }
+    .sidebar nav ul li a {
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      display: block;
+      padding: 14px 20px;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+      font-size: 18px;
+    }
+    .sidebar nav ul li a.active,
+    .sidebar nav ul li a:hover {
+      background-color: #34495e;
+    }
+    /* Main Content */
+    .main-content {
+      flex-grow: 1;
+      padding: 40px 50px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    h2.content-title {
+      margin-top: 0;
+      margin-bottom: 30px;
+      color: #34495e;
+      font-size: 30px;
+      font-weight: bold;
+    }
+    /* Button Input Data Barang */
+    #btnOpenPopup {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-weight: bold;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: background-color 0.3s;
+    }
+    #btnOpenPopup:hover {
+      background-color: #1c5980;
+    }
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 17px;
+      background-color: white;
+    }
+    th, td {
+      padding: 16px 20px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    thead {
+      background-color: #2980b9;
+      color: white;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f8f8f8;
+    }
+    /* Info Message */
+    #msg-list {
+      margin-top: 18px;
+      font-style: italic;
+      color: #34495e;
+      font-size: 18px;
+    }
+    /* Buttons */
+    .btn-edit, .btn-delete {
+      padding: 7px 14px;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+      margin-right: 5px;
+    }
+    .btn-edit {
+      background-color: #27ae60;
+      color: white;
+    }
+    .btn-edit:hover {
+      background-color: #1e8449;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow-y: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      padding: 80px 20px;
+      box-sizing: border-box;
+    }
+    .modal-content {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 12px;
+      padding: 40px 30px;
+      position: relative;
+      font-size: 18px;
+      box-sizing: border-box;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #aaa;
+      transition: color 0.3s;
+    }
+    .close-btn:hover {
+      color: #000;
+    }
+    /* Tabs */
+    .tab-menu {
+      display: flex;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 25px;
+    }
+    .tab-link {
+      flex: 1;
+      padding: 12px 0;
+      background: transparent;
+      border: none;
+      font-weight: 700;
+      font-size: 18px;
+      color: #555;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.3s, border-bottom 0.3s;
+    }
+    .tab-link:hover:not(:disabled) {
+      color: #2980b9;
+    }
+    .tab-link.active {
+      color: #2980b9;
+      border-bottom: 3px solid #2980b9;
+    }
+    .tab-link:disabled {
+      cursor: default;
+      color: #aaa;
+    }
+    /* Form Styling */
+    form label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 18px;
+    }
+    form input[type="text"], form input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #bdc3c7;
+      box-sizing: border-box;
+    }
+    form button, #btnAddVariasi {
+      margin-top: 30px;
+      padding: 14px 0;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      font-weight: bold;
+      font-size: 20px;
+      border-radius: 7px;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+      transition: background-color 0.3s;
+    }
+    form button:hover, #btnAddVariasi:hover {
+      background-color: #1e8449;
+    }
+    #btnAddVariasi {
+      width: auto;
+      padding: 10px 24px;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    /* Table variasi */
+    #tableVariasi {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 16px;
+    }
+    #tableVariasi thead th {
+      background-color: #34495e;
+      color: white;
+      padding: 12px 18px;
+      border: 1px solid #ddd;
+    }
+    #tableVariasi tbody td {
+      padding: 10px 16px;
+      border: 1px solid #ddd;
+    }
+    #tableVariasi input[type="text"], #tableVariasi input[type="number"] {
+      font-size: 15px;
+      padding: 8px 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn-hapus-vari {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .btn-hapus-vari:hover {
+      background-color: #c0392b;
+    }
+    /* Konfirmasi Hapus Custom */
+    #modalConfirmDelete {
+      display: none;
+      position: fixed;
+      top:0; left:0;
+      width:100vw; height:100vh;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(3px);
+      justify-content: center;
+      align-items: center;
+      z-index: 11000;
+    }
+    #modalConfirmDelete.show {
+      display: flex;
+    }
+    #modalConfirmDelete .modal-confirm-content {
+      background: white;
+      border-radius: 12px;
+      width: 400px;
+      max-width: 90%;
+      padding: 25px 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      font-size: 17px;
+      text-align: center;
+    }
+    #modalConfirmDelete p {
+      margin: 12px 0;
+    }
+    #modalConfirmDelete .modal-confirm-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    #modalConfirmDelete .btn-yes, #modalConfirmDelete .btn-no {
+      padding: 10px 25px;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    #modalConfirmDelete .btn-yes {
+      background-color: #e74c3c;
+      color: white;
+    }
+    #modalConfirmDelete .btn-yes:hover {
+      background-color: #c0392b;
+    }
+    #modalConfirmDelete .btn-no {
+      background-color: #bdc3c7;
+      color: #2c3e50;
+    }
+    #modalConfirmDelete .btn-no:hover {
+      background-color: #95a5a6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>POS Dashboard</h2>
+    <nav>
+      <ul>
+        <li><a href="#" id="menu-data-barang" class="active">Data Barang</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Konten Utama -->
+  <main class="main-content">
+    <section id="section-data-barang" class="content-section">
+      <h2 class="content-title">List Data Barang</h2>
+      <button id="btnOpenPopup" class="btn-primary">Input Data Barang</button>
+      <input type="text" id="searchInput" placeholder="Cari nama atau kode barang..." style="padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 300px;" />
+
+      <table id="tableBarang">
+        <thead>
+          <tr>
+            <th>No</th> <!-- kolom nomor urut -->
+            <th>Kode Barang</th>
+            <th>Nama Barang</th>
+            <th>Harga Beli</th>
+            <th>Harga Jual</th>
+            <th>Stok</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- List barang muncul di sini -->
+        </tbody>
+      </table>
+
+      <p id="msg-list" class="info-message"></p>
+    </section>
+  </main>
+</div>
+
+<!-- Modal Input/Edit Barang -->
+<div id="popupModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" id="closePopup">&times;</span>
+
+    <!-- Tab Menu -->
+    <div class="tab-menu">
+      <button class="tab-link active" data-tab="tab-1" id="tabBtn1">Data Barang</button>
+      <button class="tab-link" data-tab="tab-2" id="tabBtn2" disabled>Variasi Barang</button>
+    </div>
+
+    <form id="formBarang" autocomplete="off">
+      <!-- Tab 1 -->
+      <div class="tab-content active" id="tab-1">
+        <label for="namaBarang">Nama Barang:</label>
+        <input type="text" id="namaBarang" name="namaBarang" placeholder="Masukkan nama barang" required />
+
+        <label for="kodeBarang">Kode Barang:</label>
+        <input type="text" id="kodeBarang" name="kodeBarang" placeholder="Masukkan kode barang" required />
+
+        <label for="hargaBeliBarang">Harga Beli:</label>
+        <input type="number" id="hargaBeliBarang" name="hargaBeliBarang" placeholder="Masukkan harga beli" min="0" required />
+
+        <label for="hargaJualBarang">Harga Jual:</label>
+        <input type="number" id="hargaJualBarang" name="hargaJualBarang" placeholder="Masukkan harga jual" min="0" required />
+
+        <label>
+          <input type="checkbox" id="checkboxVariasi" name="checkboxVariasi" />
+          Produk memiliki variasi
+        </label>
+
+        <div id="stokUtamaContainer">
+          <label for="stokBarang">Stok Barang:</label>
+          <input type="number" id="stokBarang" name="stokBarang" placeholder="Masukkan jumlah stok" min="0" required />
+        </div>
+      </div>
+
+      <!-- Tab 2 -->
+      <div class="tab-content" id="tab-2" style="display:none;">
+        <h4>Variasi Produk</h4>
+        <table id="tableVariasi">
+          <thead>
+            <tr>
+              <th>Warna (opsional)</th>
+              <th>Ukuran (opsional)</th>
+              <th>Stok</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button type="button" id="btnAddVariasi" class="btn-secondary">Tambah Variasi</button>
+      </div>
+
+      <button type="submit" class="btn-submit" style="margin-top:20px;">Simpan Barang</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div id="modalConfirmDelete" class="modal-confirm hide">
+  <div class="modal-confirm-content">
+    <p>Apakah Anda yakin ingin menghapus data barang ini?</p>
+    <p style="font-weight: bold; color:#e74c3c;">Data yang dihapus akan hilang secara permanen</p>
+    <div class="modal-confirm-buttons">
+      <button id="btnConfirmYes" class="btn-yes">Yes</button>
+      <button id="btnConfirmNo" class="btn-no">No</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
