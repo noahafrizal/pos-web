@@ -1,0 +1,63 @@
+diff a/backend/index.js b/backend/index.js	(rejected hunks)
+@@ -80,50 +88,61 @@ app.post('/api/login', (req, res) => {
+     if (row) {
+       // Untuk keamanan, jangan kirim password kembali
+       return res.json({ success: true, user: { id: row.id, username: row.username } });
+     }
+     return res.status(401).json({ success: false, message: 'Username atau password salah' });
+   });
+ });
+ 
+ // API dapatkan semua barang
+ app.get('/api/barang', (req, res) => {
+   db.all('SELECT * FROM barang', [], (err, rows) => {
+     if (err) {
+       console.error('Error ambil data barang:', err.message);
+       return res.status(500).json({ success: false, message: 'Kesalahan server' });
+     }
+     const data = rows.map(item => {
+       return {
+         ...item,
+         variations: item.variasi ? JSON.parse(item.variasi) : [] // pastikan key variabel bernama variations
+       };
+     });
+     res.json(data);
+   });
+ });
+ 
++// API dapatkan semua penjualan
++app.get('/api/penjualan', (req, res) => {
++  db.all('SELECT * FROM penjualan', [], (err, rows) => {
++    if (err) {
++      console.error('Error ambil data penjualan:', err.message);
++      return res.status(500).json({ success: false, message: 'Kesalahan server' });
++    }
++    res.json(rows);
++  });
++});
++
+ // API tambah barang baru
+ app.post('/api/barang', (req, res) => {
+   const { namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi } = req.body;
+ 
+   if(!namaBarang || !kodeBarang || hargaBeli === undefined || hargaJual === undefined){
+     return res.status(400).json({ success: false, message: 'Field wajib belum lengkap' });
+   }
+ 
+   const variasiStr = JSON.stringify(variasi || []);
+ 
+   db.run(
+     `INSERT INTO barang (namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+     [namaBarang, kodeBarang, hargaBeli, hargaJual, stok || 0, variasiStr],
+     function(err) {
+       if (err) {
+         console.error('Error tambah barang:', err.message);
+         return res.status(500).json({ success: false, message: 'Gagal menambah data barang', detail: err.message });
+       }
+       res.json({ success: true, id: this.lastID });
+     }
+   );
+ });
+ 
+ // API update barang by id

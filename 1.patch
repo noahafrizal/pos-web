@@ -1,0 +1,133 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/backend/index.js b/backend/index.js
+index f30e04cc817252247ea565a3a256685bd24aad47..be3d3e7e7eef07f68196c29aa432e8e5324ce311 100644
+--- a/backend/index.js
++++ b/backend/index.js
+@@ -24,50 +24,58 @@ const db = new sqlite3.Database('./db.sqlite', (err) => {
+   console.log('Terhubung ke database SQLite');
+ });
+ 
+ // Buat tabel jika belum ada
+ db.serialize(() => {
+   db.run(`
+     CREATE TABLE IF NOT EXISTS users (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       username TEXT UNIQUE,
+       password TEXT
+     )
+   `);
+ 
+   db.run(`
+     CREATE TABLE IF NOT EXISTS barang (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       namaBarang TEXT,
+       kodeBarang TEXT UNIQUE,
+       hargaBeli INTEGER,
+       hargaJual INTEGER,
+       stok INTEGER,
+       variasi TEXT
+     )
+   `);
+ 
++  db.run(`
++    CREATE TABLE IF NOT EXISTS penjualan (
++      id INTEGER PRIMARY KEY AUTOINCREMENT,
++      tanggal TEXT,
++      total INTEGER
++    )
++  `);
++
+   // Insert user admin default jika belum ada
+   db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, row) => {
+     if (err) {
+       console.error('Error mengecek user admin:', err.message);
+     } else if (!row) {
+       db.run('INSERT INTO users(username, password) VALUES (?, ?)', ['admin', '123'], (err2) => {
+         if (err2) {
+           console.error('Gagal menambahkan user default admin:', err2.message);
+         } else {
+           console.log('User default "admin" berhasil dibuat dengan password "123"');
+         }
+       });
+     } else {
+       console.log('User default sudah ada');
+     }
+   });
+ });
+ 
+ // API Login
+ app.post('/api/login', (req, res) => {
+   const { username, password } = req.body;
+ 
+   if(!username || !password){
+     return res.status(400).json({ success: false, message: 'Username dan password wajib diisi' });
+   }
+diff --git a/backend/index.js b/backend/index.js
+index f30e04cc817252247ea565a3a256685bd24aad47..be3d3e7e7eef07f68196c29aa432e8e5324ce311 100644
+--- a/backend/index.js
++++ b/backend/index.js
+@@ -80,50 +88,61 @@ app.post('/api/login', (req, res) => {
+     if (row) {
+       // Untuk keamanan, jangan kirim password kembali
+       return res.json({ success: true, user: { id: row.id, username: row.username } });
+     }
+     return res.status(401).json({ success: false, message: 'Username atau password salah' });
+   });
+ });
+ 
+ // API dapatkan semua barang
+ app.get('/api/barang', (req, res) => {
+   db.all('SELECT * FROM barang', [], (err, rows) => {
+     if (err) {
+       console.error('Error ambil data barang:', err.message);
+       return res.status(500).json({ success: false, message: 'Kesalahan server' });
+     }
+     const data = rows.map(item => {
+       return {
+         ...item,
+         variations: item.variasi ? JSON.parse(item.variasi) : [] // pastikan key variabel bernama variations
+       };
+     });
+     res.json(data);
+   });
+ });
+ 
++// API dapatkan semua penjualan
++app.get('/api/penjualan', (req, res) => {
++  db.all('SELECT * FROM penjualan', [], (err, rows) => {
++    if (err) {
++      console.error('Error ambil data penjualan:', err.message);
++      return res.status(500).json({ success: false, message: 'Kesalahan server' });
++    }
++    res.json(rows);
++  });
++});
++
+ // API tambah barang baru
+ app.post('/api/barang', (req, res) => {
+   const { namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi } = req.body;
+ 
+   if(!namaBarang || !kodeBarang || hargaBeli === undefined || hargaJual === undefined){
+     return res.status(400).json({ success: false, message: 'Field wajib belum lengkap' });
+   }
+ 
+   const variasiStr = JSON.stringify(variasi || []);
+ 
+   db.run(
+     `INSERT INTO barang (namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+     [namaBarang, kodeBarang, hargaBeli, hargaJual, stok || 0, variasiStr],
+     function(err) {
+       if (err) {
+         console.error('Error tambah barang:', err.message);
+         return res.status(500).json({ success: false, message: 'Gagal menambah data barang', detail: err.message });
+       }
+       res.json({ success: true, id: this.lastID });
+     }
+   );
+ });
+ 
+ // API update barang by id
+ 
+EOF
+)
