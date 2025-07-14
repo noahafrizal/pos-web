@@ -46,6 +46,14 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS penjualan (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tanggal TEXT,
+      total INTEGER
+    )
+  `);
+
   // Insert user admin default jika belum ada
   db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, row) => {
     if (err) {
@@ -99,6 +107,17 @@ app.get('/api/barang', (req, res) => {
       };
     });
     res.json(data);
+  });
+});
+
+// API dapatkan semua penjualan
+app.get('/api/penjualan', (req, res) => {
+  db.all('SELECT * FROM penjualan', [], (err, rows) => {
+    if (err) {
+      console.error('Error ambil data penjualan:', err.message);
+      return res.status(500).json({ success: false, message: 'Kesalahan server' });
+    }
+    res.json(rows);
   });
 });
 
