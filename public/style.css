@@ -565,3 +565,20 @@ table tbody tr:nth-child(even){
 .modal.show {
     display: flex !important;
 }
+
+/* Daftar pilihan (barang/variasi) */
+.select-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.select-list li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.select-list li:hover {
+    background-color: #f0f0f0;
+}

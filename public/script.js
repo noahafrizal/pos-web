@@ -372,6 +372,44 @@ function renderItemsPenjualan() {
         });
     });
 }
+function showSelectBarang(results){
+    listSelectBarang.innerHTML = '';
+    results.forEach(barang => {
+        const li = document.createElement('li');
+        li.textContent = `${barang.kodeBarang} - ${barang.namaBarang}`;
+        li.addEventListener('click', () => {
+            modalSelectBarang.style.display = 'none';
+            pilihBarang(barang);
+        });
+        listSelectBarang.appendChild(li);
+    });
+    modalSelectBarang.style.display = 'block';
+}
+
+function showSelectVariasi(barang){
+    listSelectVariasi.innerHTML = '';
+    barang.variations.forEach((v, idx) => {
+        const namaVar = `${v.warna || ''}${v.ukuran ? ' ' + v.ukuran : ''}`.trim();
+        const li = document.createElement('li');
+        li.textContent = namaVar || `Varian ${idx+1}`;
+        li.addEventListener('click', () => {
+            modalSelectVariasi.style.display = 'none';
+            itemsPenjualan.push({ id: barang.id, varIndex: idx, nama: `${barang.namaBarang} - ${namaVar}`, harga: barang.hargaJual, qty: 1 });
+            renderItemsPenjualan();
+        });
+        listSelectVariasi.appendChild(li);
+    });
+    modalSelectVariasi.style.display = 'block';
+}
+
+function pilihBarang(barang){
+    if(barang.variations && barang.variations.length > 0){
+        showSelectVariasi(barang);
+    } else {
+        itemsPenjualan.push({ id: barang.id, nama: barang.namaBarang, harga: barang.hargaJual, qty: 1 });
+        renderItemsPenjualan();
+    }
+}
 
 btnAddPenjualan.addEventListener('click', () => {
     modalPenjualan.style.display = 'block';
@@ -382,7 +420,10 @@ btnAddPenjualan.addEventListener('click', () => {
 });
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
 window.addEventListener('click', (e) => { if(e.target === modalPenjualan) modalPenjualan.style.display = 'none'; });
-
+closeSelectBarang.addEventListener("click", () => modalSelectBarang.style.display = "none");
+closeSelectVariasi.addEventListener("click", () => modalSelectVariasi.style.display = "none");
+window.addEventListener("click", (e) => { if(e.target === modalSelectBarang) modalSelectBarang.style.display = "none"; });
+window.addEventListener("click", (e) => { if(e.target === modalSelectVariasi) modalSelectVariasi.style.display = "none"; });
 inputNoResi.addEventListener('keydown', e => {
     if(e.key === 'Enter') {
         e.preventDefault();
@@ -390,25 +431,19 @@ inputNoResi.addEventListener('keydown', e => {
     }
 });
 
-inputCariBarang.addEventListener('keydown', e => {
-    if(e.key === 'Enter') {
+inputCariBarang.addEventListener("keydown", e => {
+    if(e.key === "Enter") {
         e.preventDefault();
-        const kode = inputCariBarang.value.trim().toLowerCase();
-        if(!kode) return;
-        const barang = dataBarang.find(b => b.kodeBarang.toLowerCase() === kode || b.namaBarang.toLowerCase() === kode);
-        if(!barang){
-            alert('Barang tidak ditemukan');
-            return;
-        }
-        if(barang.variations && barang.variations.length > 0){
-            const pilihan = prompt('Pilih variasi:\n' + barang.variations.map((v,i)=> `${i+1}. ${(v.warna||'')}${v.ukuran? ' '+v.ukuran:''}`).join('\n'));
-            const idx = parseInt(pilihan) - 1;
-            if(idx >= 0 && idx < barang.variations.length){
-                const v = barang.variations[idx];
-                itemsPenjualan.push({ id: barang.id, nama: `${barang.namaBarang} - ${(v.warna||'')}${v.ukuran? ' '+v.ukuran:''}`, harga: barang.hargaJual, qty: 1 });
-            }
+    const kata = inputCariBarang.value.trim().toLowerCase();
+        if(!kata) return;
+        const hasil = dataBarang.filter(b => b.kodeBarang.toLowerCase().includes(kata) || b.namaBarang.toLowerCase().includes(kata));
+        inputCariBarang.value = "";
+        if(hasil.length === 0){
+            alert("Barang tidak ditemukan");
+        } else if(hasil.length === 1){
+            pilihBarang(hasil[0]);
         } else {
-            itemsPenjualan.push({ id: barang.id, nama: barang.namaBarang, harga: barang.hargaJual, qty: 1 });
+            showSelectBarang(hasil);
         }
         renderItemsPenjualan();
         inputCariBarang.value = '';
@@ -418,7 +453,11 @@ inputCariBarang.addEventListener('keydown', e => {
 formPenjualan.addEventListener('submit', e => {
     e.preventDefault();
     const total = itemsPenjualan.reduce((sum, it) => sum + it.harga * it.qty, 0);
-    const data = { tanggal: new Date().toISOString().split('T')[0], total };
+    const data = {
+        tanggal: new Date().toISOString().split("T")[0],
+        total,
+        items: itemsPenjualan.map(it => ({ id: it.id, qty: it.qty, varIndex: it.varIndex }))
+    };
     fetch('/api/penjualan', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
