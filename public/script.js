@@ -1,6 +1,7 @@
 // --- Variable global --- 
 let dataBarang = [];
 let filteredDataBarang = [];
+let dataPenjualan = [];
 let editIndex = -1; // Menyimpan index barang yang sedang diedit (-1 = tidak edit)
 
 // Fungsi format angka ke Rupiah
@@ -65,7 +66,27 @@ function renderListBarang(dataToRender) {
         });
     });
 }
+function renderListPenjualan(data) {
+    const tbody = document.querySelector('#tablePenjualan tbody');
+    tbody.innerHTML = '';
 
+    if (!data || data.length === 0) {
+        document.getElementById('msg-list-penjualan').textContent = 'Belum ada data penjualan.';
+        return;
+    } else {
+        document.getElementById('msg-list-penjualan').textContent = '';
+    }
+
+    data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.tanggal || ''}</td>
+            <td>${formatRupiah(item.total || 0)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 // --- Referensi elemen DOM ---
 const popupModal = document.getElementById('popupModal');
 const btnOpenPopup = document.getElementById('btnOpenPopup');
@@ -87,6 +108,35 @@ const btnConfirmYes = document.getElementById('btnConfirmYes');
 const btnConfirmNo = document.getElementById('btnConfirmNo');
 
 const searchInput = document.getElementById('searchInput'); // Pastikan searchInput ada di HTML
+const menuDataBarang = document.getElementById('menu-data-barang');
+const menuDataPenjualan = document.getElementById('menu-data-penjualan');
+
+const sectionDataBarang = document.getElementById('section-data-barang');
+const sectionDataPenjualan = document.getElementById('section-data-penjualan');
+
+function showSection(section) {
+    sectionDataBarang.style.display = 'none';
+    sectionDataPenjualan.style.display = 'none';
+    section.style.display = 'block';
+}
+
+function setActiveMenu(menu) {
+    menuDataBarang.classList.remove('active');
+    menuDataPenjualan.classList.remove('active');
+    menu.classList.add('active');
+}
+
+menuDataBarang.addEventListener('click', (e) => {
+    e.preventDefault();
+    setActiveMenu(menuDataBarang);
+    showSection(sectionDataBarang);
+});
+
+menuDataPenjualan.addEventListener('click', (e) => {
+    e.preventDefault();
+    setActiveMenu(menuDataPenjualan);
+    showSection(sectionDataPenjualan);
+});
 
 // Switch tab
 function switchTab(tabId) {
@@ -269,6 +319,18 @@ function fetchDataBarang() {
         alert('Gagal mengambil data barang dari server.');
     });
 }
+function fetchDataPenjualan() {
+    fetch('/api/penjualan')
+    .then(res => res.json())
+    .then(data => {
+        dataPenjualan = data;
+        renderListPenjualan(dataPenjualan);
+    })
+    .catch(err => {
+        console.error('Gagal mengambil data penjualan:', err);
+        alert('Gagal mengambil data penjualan dari server.');
+    });
+}
 
 // Fungsi filter data berdasarkan pencarian
 searchInput.addEventListener('input', (e) => {
@@ -350,7 +412,10 @@ formBarang.addEventListener('submit', (event) => {
     });
 });
 
-// Inisialisasi data saat halaman siap
+// Inisialisasi data saat halaman siap v.2
 document.addEventListener('DOMContentLoaded', () => {
     fetchDataBarang();
+    fetchDataPenjualan();
+    setActiveMenu(menuDataBarang);
+    showSection(sectionDataBarang);
 });
