@@ -121,6 +121,21 @@ app.get('/api/penjualan', (req, res) => {
   });
 });
 
+// API tambah data penjualan sederhana
+app.post('/api/penjualan', (req, res) => {
+  const { tanggal, total } = req.body;
+  if(!tanggal || total === undefined){
+    return res.status(400).json({ success:false, message:'Field penjualan tidak lengkap' });
+  }
+  db.run('INSERT INTO penjualan(tanggal,total) VALUES(?,?)', [tanggal, total], function(err){
+    if(err){
+      console.error('Error tambah penjualan:', err.message);
+      return res.status(500).json({ success:false, message:'Gagal menambah penjualan' });
+    }
+    res.json({ success:true, id:this.lastID });
+  });
+});
+
 // API tambah barang baru
 app.post('/api/barang', (req, res) => {
   const { namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi } = req.body;

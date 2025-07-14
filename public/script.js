@@ -3,6 +3,7 @@ let dataBarang = [];
 let filteredDataBarang = [];
 let dataPenjualan = [];
 let editIndex = -1; // Menyimpan index barang yang sedang diedit (-1 = tidak edit)
+let itemsPenjualan = [];
 
 // Fungsi format angka ke Rupiah
 function formatRupiah(angka) {
@@ -106,6 +107,15 @@ const btnAddVariasi = document.getElementById('btnAddVariasi');
 const modalConfirmDelete = document.getElementById('modalConfirmDelete');
 const btnConfirmYes = document.getElementById('btnConfirmYes');
 const btnConfirmNo = document.getElementById('btnConfirmNo');
+
+// Elemen untuk penjualan
+const btnAddPenjualan = document.getElementById('btnAddPenjualan');
+const modalPenjualan = document.getElementById('modalPenjualan');
+const closePenjualan = document.getElementById('closePenjualan');
+const formPenjualan = document.getElementById('formPenjualan');
+const inputNoResi = document.getElementById('noResi');
+const inputCariBarang = document.getElementById('cariBarang');
+const tableListJualBody = document.querySelector('#tableListJual tbody');
 
 const searchInput = document.getElementById('searchInput'); // Pastikan searchInput ada di HTML
 const menuDataBarang = document.getElementById('menu-data-barang');
@@ -331,7 +341,99 @@ function fetchDataPenjualan() {
         alert('Gagal mengambil data penjualan dari server.');
     });
 }
+// ----- Penjualan -----
+function renderItemsPenjualan() {
+    tableListJualBody.innerHTML = '';
+    itemsPenjualan.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.nama}</td>
+            <td>${formatRupiah(item.harga)}</td>
+            <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input"></td>
+            <td><button type="button" class="btn-hapus-jual" data-index="${idx}">Hapus</button></td>
+        `;
+        tableListJualBody.appendChild(tr);
+    });
 
+    tableListJualBody.querySelectorAll('.qty-input').forEach(inp => {
+        inp.addEventListener('change', e => {
+            const i = e.target.getAttribute('data-index');
+            let val = parseInt(e.target.value);
+            if(val < 1) val = 1;
+            itemsPenjualan[i].qty = val;
+            e.target.value = val;
+        });
+    });
+    tableListJualBody.querySelectorAll('.btn-hapus-jual').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = btn.getAttribute('data-index');
+            itemsPenjualan.splice(i, 1);
+            renderItemsPenjualan();
+        });
+    });
+}
+
+btnAddPenjualan.addEventListener('click', () => {
+    modalPenjualan.style.display = 'block';
+    formPenjualan.reset();
+    itemsPenjualan = [];
+    renderItemsPenjualan();
+    inputNoResi.focus();
+});
+closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
+window.addEventListener('click', (e) => { if(e.target === modalPenjualan) modalPenjualan.style.display = 'none'; });
+
+inputNoResi.addEventListener('keydown', e => {
+    if(e.key === 'Enter') {
+        e.preventDefault();
+        inputCariBarang.focus();
+    }
+});
+
+inputCariBarang.addEventListener('keydown', e => {
+    if(e.key === 'Enter') {
+        e.preventDefault();
+        const kode = inputCariBarang.value.trim().toLowerCase();
+        if(!kode) return;
+        const barang = dataBarang.find(b => b.kodeBarang.toLowerCase() === kode || b.namaBarang.toLowerCase() === kode);
+        if(!barang){
+            alert('Barang tidak ditemukan');
+            return;
+        }
+        if(barang.variations && barang.variations.length > 0){
+            const pilihan = prompt('Pilih variasi:\n' + barang.variations.map((v,i)=> `${i+1}. ${(v.warna||'')}${v.ukuran? ' '+v.ukuran:''}`).join('\n'));
+            const idx = parseInt(pilihan) - 1;
+            if(idx >= 0 && idx < barang.variations.length){
+                const v = barang.variations[idx];
+                itemsPenjualan.push({ id: barang.id, nama: `${barang.namaBarang} - ${(v.warna||'')}${v.ukuran? ' '+v.ukuran:''}`, harga: barang.hargaJual, qty: 1 });
+            }
+        } else {
+            itemsPenjualan.push({ id: barang.id, nama: barang.namaBarang, harga: barang.hargaJual, qty: 1 });
+        }
+        renderItemsPenjualan();
+        inputCariBarang.value = '';
+    }
+});
+
+formPenjualan.addEventListener('submit', e => {
+    e.preventDefault();
+    const total = itemsPenjualan.reduce((sum, it) => sum + it.harga * it.qty, 0);
+    const data = { tanggal: new Date().toISOString().split('T')[0], total };
+    fetch('/api/penjualan', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(() => {
+        modalPenjualan.style.display = 'none';
+        fetchDataPenjualan();
+    })
+    .catch(err => {
+        alert('Gagal menyimpan penjualan');
+        console.error(err);
+    });
+});
 // Fungsi filter data berdasarkan pencarian
 searchInput.addEventListener('input', (e) => {
     const keyword = e.target.value.toLowerCase();

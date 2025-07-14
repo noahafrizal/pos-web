@@ -1,133 +1,253 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/backend/index.js b/backend/index.js
-index f30e04cc817252247ea565a3a256685bd24aad47..be3d3e7e7eef07f68196c29aa432e8e5324ce311 100644
---- a/backend/index.js
-+++ b/backend/index.js
-@@ -24,50 +24,58 @@ const db = new sqlite3.Database('./db.sqlite', (err) => {
-   console.log('Terhubung ke database SQLite');
- });
+diff --git a/public/script.js b/public/script.js
+index 1377bc92d6e3a2c9bd70b562bd19a5515fb9fe3c..7e1598954fce2e3e3d2380da435ef6f84e99e5be 100644
+--- a/public/script.js
++++ b/public/script.js
+@@ -1,30 +1,31 @@
+ // --- Variable global --- 
+ let dataBarang = [];
+ let filteredDataBarang = [];
+ let dataPenjualan = [];
+ let editIndex = -1; // Menyimpan index barang yang sedang diedit (-1 = tidak edit)
++let itemsPenjualan = [];
  
- // Buat tabel jika belum ada
- db.serialize(() => {
-   db.run(`
-     CREATE TABLE IF NOT EXISTS users (
-       id INTEGER PRIMARY KEY AUTOINCREMENT,
-       username TEXT UNIQUE,
-       password TEXT
-     )
-   `);
+ // Fungsi format angka ke Rupiah
+ function formatRupiah(angka) {
+     return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+ }
  
-   db.run(`
-     CREATE TABLE IF NOT EXISTS barang (
-       id INTEGER PRIMARY KEY AUTOINCREMENT,
-       namaBarang TEXT,
-       kodeBarang TEXT UNIQUE,
-       hargaBeli INTEGER,
-       hargaJual INTEGER,
-       stok INTEGER,
-       variasi TEXT
-     )
-   `);
+ // Render daftar barang dengan tombol Edit dan Hapus
+ function renderListBarang(dataToRender) {
+     const tbody = document.querySelector('#tableBarang tbody');
+     tbody.innerHTML = '';
  
-+  db.run(`
-+    CREATE TABLE IF NOT EXISTS penjualan (
-+      id INTEGER PRIMARY KEY AUTOINCREMENT,
-+      tanggal TEXT,
-+      total INTEGER
-+    )
-+  `);
-+
-   // Insert user admin default jika belum ada
-   db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, row) => {
-     if (err) {
-       console.error('Error mengecek user admin:', err.message);
-     } else if (!row) {
-       db.run('INSERT INTO users(username, password) VALUES (?, ?)', ['admin', '123'], (err2) => {
-         if (err2) {
-           console.error('Gagal menambahkan user default admin:', err2.message);
-         } else {
-           console.log('User default "admin" berhasil dibuat dengan password "123"');
-         }
-       });
+     if (!dataToRender || dataToRender.length === 0) {
+         document.getElementById('msg-list').textContent = 'Belum ada data barang.';
+         return;
      } else {
-       console.log('User default sudah ada');
+         document.getElementById('msg-list').textContent = '';
      }
-   });
- });
  
- // API Login
- app.post('/api/login', (req, res) => {
-   const { username, password } = req.body;
- 
-   if(!username || !password){
-     return res.status(400).json({ success: false, message: 'Username dan password wajib diisi' });
-   }
-diff --git a/backend/index.js b/backend/index.js
-index f30e04cc817252247ea565a3a256685bd24aad47..be3d3e7e7eef07f68196c29aa432e8e5324ce311 100644
---- a/backend/index.js
-+++ b/backend/index.js
-@@ -80,50 +88,61 @@ app.post('/api/login', (req, res) => {
-     if (row) {
-       // Untuk keamanan, jangan kirim password kembali
-       return res.json({ success: true, user: { id: row.id, username: row.username } });
-     }
-     return res.status(401).json({ success: false, message: 'Username atau password salah' });
-   });
- });
- 
- // API dapatkan semua barang
- app.get('/api/barang', (req, res) => {
-   db.all('SELECT * FROM barang', [], (err, rows) => {
-     if (err) {
-       console.error('Error ambil data barang:', err.message);
-       return res.status(500).json({ success: false, message: 'Kesalahan server' });
-     }
-     const data = rows.map(item => {
-       return {
-         ...item,
-         variations: item.variasi ? JSON.parse(item.variasi) : [] // pastikan key variabel bernama variations
-       };
+     dataToRender.forEach((item, index) => {
+         const tr = document.createElement('tr');
+         let stokTotal = 0;
+         if (item.variations && item.variations.length > 0) {
+             stokTotal = item.variations.reduce((total, v) => total + v.stok, 0);
+         } else {
+             stokTotal = item.stok || 0;
+diff --git a/public/script.js b/public/script.js
+index 1377bc92d6e3a2c9bd70b562bd19a5515fb9fe3c..7e1598954fce2e3e3d2380da435ef6f84e99e5be 100644
+--- a/public/script.js
++++ b/public/script.js
+@@ -85,50 +86,59 @@ function renderListPenjualan(data) {
+             <td>${formatRupiah(item.total || 0)}</td>
+         `;
+         tbody.appendChild(tr);
      });
-     res.json(data);
-   });
+ }
+ // --- Referensi elemen DOM ---
+ const popupModal = document.getElementById('popupModal');
+ const btnOpenPopup = document.getElementById('btnOpenPopup');
+ const btnClosePopup = document.getElementById('closePopup');
+ const formBarang = document.getElementById('formBarang');
+ 
+ const checkboxVariasi = document.getElementById('checkboxVariasi');
+ const stokUtamaContainer = document.getElementById('stokUtamaContainer');
+ const tabBtn1 = document.getElementById('tabBtn1');
+ const tabBtn2 = document.getElementById('tabBtn2');
+ const tab1Content = document.getElementById('tab-1');
+ const tab2Content = document.getElementById('tab-2');
+ 
+ const tableVariasiBody = document.querySelector('#tableVariasi tbody');
+ const btnAddVariasi = document.getElementById('btnAddVariasi');
+ 
+ const modalConfirmDelete = document.getElementById('modalConfirmDelete');
+ const btnConfirmYes = document.getElementById('btnConfirmYes');
+ const btnConfirmNo = document.getElementById('btnConfirmNo');
+ 
++// Elemen untuk penjualan
++const btnAddPenjualan = document.getElementById('btnAddPenjualan');
++const modalPenjualan = document.getElementById('modalPenjualan');
++const closePenjualan = document.getElementById('closePenjualan');
++const formPenjualan = document.getElementById('formPenjualan');
++const inputNoResi = document.getElementById('noResi');
++const inputCariBarang = document.getElementById('cariBarang');
++const tableListJualBody = document.querySelector('#tableListJual tbody');
++
+ const searchInput = document.getElementById('searchInput'); // Pastikan searchInput ada di HTML
+ const menuDataBarang = document.getElementById('menu-data-barang');
+ const menuDataPenjualan = document.getElementById('menu-data-penjualan');
+ 
+ const sectionDataBarang = document.getElementById('section-data-barang');
+ const sectionDataPenjualan = document.getElementById('section-data-penjualan');
+ 
+ function showSection(section) {
+     sectionDataBarang.style.display = 'none';
+     sectionDataPenjualan.style.display = 'none';
+     section.style.display = 'block';
+ }
+ 
+ function setActiveMenu(menu) {
+     menuDataBarang.classList.remove('active');
+     menuDataPenjualan.classList.remove('active');
+     menu.classList.add('active');
+ }
+ 
+ menuDataBarang.addEventListener('click', (e) => {
+     e.preventDefault();
+     setActiveMenu(menuDataBarang);
+     showSection(sectionDataBarang);
  });
  
-+// API dapatkan semua penjualan
-+app.get('/api/penjualan', (req, res) => {
-+  db.all('SELECT * FROM penjualan', [], (err, rows) => {
-+    if (err) {
-+      console.error('Error ambil data penjualan:', err.message);
-+      return res.status(500).json({ success: false, message: 'Kesalahan server' });
+diff --git a/public/script.js b/public/script.js
+index 1377bc92d6e3a2c9bd70b562bd19a5515fb9fe3c..7e1598954fce2e3e3d2380da435ef6f84e99e5be 100644
+--- a/public/script.js
++++ b/public/script.js
+@@ -310,50 +320,144 @@ function fetchDataBarang() {
+     fetch('/api/barang')
+     .then(res => res.json())
+     .then(data => {
+         dataBarang = data;
+         filteredDataBarang = dataBarang; // Awal tanpa filter
+         renderListBarang(filteredDataBarang);
+     })
+     .catch(err => {
+         console.error('Gagal mengambil data barang:', err);
+         alert('Gagal mengambil data barang dari server.');
+     });
+ }
+ function fetchDataPenjualan() {
+     fetch('/api/penjualan')
+     .then(res => res.json())
+     .then(data => {
+         dataPenjualan = data;
+         renderListPenjualan(dataPenjualan);
+     })
+     .catch(err => {
+         console.error('Gagal mengambil data penjualan:', err);
+         alert('Gagal mengambil data penjualan dari server.');
+     });
+ }
+ 
++// ----- Penjualan -----
++function renderItemsPenjualan() {
++    tableListJualBody.innerHTML = '';
++    itemsPenjualan.forEach((item, idx) => {
++        const tr = document.createElement('tr');
++        tr.innerHTML = `
++            <td>${item.nama}</td>
++            <td>${formatRupiah(item.harga)}</td>
++            <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input"></td>
++            <td><button type="button" class="btn-hapus-jual" data-index="${idx}">Hapus</button></td>
++        `;
++        tableListJualBody.appendChild(tr);
++    });
++
++    tableListJualBody.querySelectorAll('.qty-input').forEach(inp => {
++        inp.addEventListener('change', e => {
++            const i = e.target.getAttribute('data-index');
++            let val = parseInt(e.target.value);
++            if(val < 1) val = 1;
++            itemsPenjualan[i].qty = val;
++            e.target.value = val;
++        });
++    });
++    tableListJualBody.querySelectorAll('.btn-hapus-jual').forEach(btn => {
++        btn.addEventListener('click', () => {
++            const i = btn.getAttribute('data-index');
++            itemsPenjualan.splice(i, 1);
++            renderItemsPenjualan();
++        });
++    });
++}
++
++btnAddPenjualan.addEventListener('click', () => {
++    modalPenjualan.style.display = 'block';
++    formPenjualan.reset();
++    itemsPenjualan = [];
++    renderItemsPenjualan();
++    inputNoResi.focus();
++});
++closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
++window.addEventListener('click', (e) => { if(e.target === modalPenjualan) modalPenjualan.style.display = 'none'; });
++
++inputNoResi.addEventListener('keydown', e => {
++    if(e.key === 'Enter') {
++        e.preventDefault();
++        inputCariBarang.focus();
 +    }
-+    res.json(rows);
-+  });
 +});
 +
- // API tambah barang baru
- app.post('/api/barang', (req, res) => {
-   const { namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi } = req.body;
- 
-   if(!namaBarang || !kodeBarang || hargaBeli === undefined || hargaJual === undefined){
-     return res.status(400).json({ success: false, message: 'Field wajib belum lengkap' });
-   }
- 
-   const variasiStr = JSON.stringify(variasi || []);
- 
-   db.run(
-     `INSERT INTO barang (namaBarang, kodeBarang, hargaBeli, hargaJual, stok, variasi)
-      VALUES (?, ?, ?, ?, ?, ?)`,
-     [namaBarang, kodeBarang, hargaBeli, hargaJual, stok || 0, variasiStr],
-     function(err) {
-       if (err) {
-         console.error('Error tambah barang:', err.message);
-         return res.status(500).json({ success: false, message: 'Gagal menambah data barang', detail: err.message });
-       }
-       res.json({ success: true, id: this.lastID });
-     }
-   );
++inputCariBarang.addEventListener('keydown', e => {
++    if(e.key === 'Enter') {
++        e.preventDefault();
++        const kode = inputCariBarang.value.trim().toLowerCase();
++        if(!kode) return;
++        const barang = dataBarang.find(b => b.kodeBarang.toLowerCase() === kode || b.namaBarang.toLowerCase() === kode);
++        if(!barang){
++            alert('Barang tidak ditemukan');
++            return;
++        }
++        if(barang.variations && barang.variations.length > 0){
++            const pilihan = prompt('Pilih variasi:\n' + barang.variations.map((v,i)=> `${i+1}. ${(v.warna||'')}${v.ukuran? ' '+v.ukuran:''}`).join('\n'));
++            const idx = parseInt(pilihan) - 1;
++            if(idx >= 0 && idx < barang.variations.length){
++                const v = barang.variations[idx];
++                itemsPenjualan.push({ id: barang.id, nama: `${barang.namaBarang} - ${(v.warna||'')}${v.ukuran? ' '+v.ukuran:''}`, harga: barang.hargaJual, qty: 1 });
++            }
++        } else {
++            itemsPenjualan.push({ id: barang.id, nama: barang.namaBarang, harga: barang.hargaJual, qty: 1 });
++        }
++        renderItemsPenjualan();
++        inputCariBarang.value = '';
++    }
++});
++
++formPenjualan.addEventListener('submit', e => {
++    e.preventDefault();
++    const total = itemsPenjualan.reduce((sum, it) => sum + it.harga * it.qty, 0);
++    const data = { tanggal: new Date().toISOString().split('T')[0], total };
++    fetch('/api/penjualan', {
++        method: 'POST',
++        headers: {'Content-Type':'application/json'},
++        body: JSON.stringify(data)
++    })
++    .then(res => res.json())
++    .then(() => {
++        modalPenjualan.style.display = 'none';
++        fetchDataPenjualan();
++    })
++    .catch(err => {
++        alert('Gagal menyimpan penjualan');
++        console.error(err);
++    });
++});
++
+ // Fungsi filter data berdasarkan pencarian
+ searchInput.addEventListener('input', (e) => {
+     const keyword = e.target.value.toLowerCase();
+     filteredDataBarang = dataBarang.filter(item => 
+         item.namaBarang.toLowerCase().includes(keyword) || 
+         item.kodeBarang.toLowerCase().includes(keyword)
+     );
+     renderListBarang(filteredDataBarang);
  });
  
- // API update barang by id
+ // Submit form tambah/edit barang
+ formBarang.addEventListener('submit', (event) => {
+     event.preventDefault();
+ 
+     let namaBarang = formBarang.namaBarang.value.trim();
+     let kodeBarang = formBarang.kodeBarang.value.trim();
+ 
+     let hargaBeli = Number(formBarang.hargaBeliBarang.value);
+     let hargaJual = Number(formBarang.hargaJualBarang.value);
+ 
+     if(hargaBeli < 0 || hargaJual < 0){
+         alert('Harga beli dan harga jual harus >= 0');
+         return;
+     }
+ 
  
 EOF
 )

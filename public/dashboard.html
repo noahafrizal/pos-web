@@ -372,6 +372,7 @@
     
     <section id="section-data-penjualan" class="content-section" style="display:none;">
       <h2 class="content-title">List Data Penjualan</h2>
+      <button id="btnAddPenjualan" class="btn-secondary" style="margin-bottom:20px;">Tambah Penjualan</button>
       <table id="tablePenjualan">
         <thead>
           <tr>
@@ -442,6 +443,30 @@
       </div>
 
       <button type="submit" class="btn-submit" style="margin-top:20px;">Simpan Barang</button>
+    </form>
+  </div>
+</div>
+<!-- Modal Input Penjualan -->
+<div id="modalPenjualan" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" id="closePenjualan">&times;</span>
+    <form id="formPenjualan" autocomplete="off">
+      <label for="noResi">NO RESI:</label>
+      <input type="text" id="noResi" />
+      <label for="cariBarang">NAMA / KODE BARANG:</label>
+      <input type="text" id="cariBarang" />
+      <table id="tableListJual" style="margin-top:20px;">
+        <thead>
+          <tr>
+            <th>Nama Barang</th>
+            <th>Harga</th>
+            <th>Pcs</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button type="submit" class="btn-submit" style="margin-top:20px;">Simpan Penjualan</button>
     </form>
   </div>
 </div>
