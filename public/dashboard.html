@@ -155,7 +155,8 @@
     /* Lebar modal penjualan menyesuaikan tabel */
     #modalPenjualan .modal-content {
       width: auto;
-      max-width: calc(100vw - 380px);
+      /* Batasi lebar modal agar tidak melampaui area konten utama */
+      max-width: min(calc(100vw - 280px), 1120px);
     }
     #tableListJual {
       width: 100%;
