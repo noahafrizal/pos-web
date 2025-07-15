@@ -364,9 +364,12 @@ function renderItemsPenjualan() {
             <td>${formatRupiah(item.harga)}</td>
             <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input" style="width:80px;"></td>
             <td><input type="number" min="0" value="${item.diskonPersen || 0}" data-index="${idx}" class="diskon-persen-input" style="width:80px;"></td>
-            <td><input type="number" min="0" value="${item.diskonRp || 0}" data-index="${idx}" class="diskon-rp-input" style="width:100px;"></td>
+            <td><input type="number" min="0" value="${item.diskonRp || 0}" data-index="${idx}" class="diskon-rp-input" style="width:120px;"></td>
             <td class="subtotal-cell">${formatRupiah(subTotal)}</td>
-            <td><button type="button" class="btn-hapus-jual" data-index="${idx}">Hapus</button></td>
+            <td>
+              <button type="button" class="btn-add-jual" data-id="${item.id}">+</button>
+              <button type="button" class="btn-hapus-jual" data-index="${idx}">Hapus</button>
+            </td>
         `;
         tableListJualBody.appendChild(tr);
     });
@@ -406,6 +409,13 @@ function renderItemsPenjualan() {
             const i = btn.getAttribute('data-index');
             itemsPenjualan.splice(i, 1);
             renderItemsPenjualan();
+        });
+    });
+    tableListJualBody.querySelectorAll('.btn-add-jual').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const barang = dataBarang.find(b => b.id == id);
+            if(barang) pilihBarang(barang);
         });
     });
 }
