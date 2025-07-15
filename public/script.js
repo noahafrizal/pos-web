@@ -362,7 +362,7 @@ function renderItemsPenjualan() {
         tr.innerHTML = `
             <td>${item.nama}</td>
             <td>${formatRupiah(item.harga)}</td>
-            <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input" style="width:60px;"></td>
+            <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input" style="width:80px;"></td>
             <td><input type="number" min="0" value="${item.diskonPersen || 0}" data-index="${idx}" class="diskon-persen-input" style="width:80px;"></td>
             <td><input type="number" min="0" value="${item.diskonRp || 0}" data-index="${idx}" class="diskon-rp-input" style="width:100px;"></td>
             <td class="subtotal-cell">${formatRupiah(subTotal)}</td>
