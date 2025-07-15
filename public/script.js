@@ -342,14 +342,30 @@ function fetchDataPenjualan() {
     });
 }
 // ----- Penjualan -----
+function hitungSubTotal(item){
+    let sub = item.harga * item.qty;
+    if(item.diskonPersen){
+        sub -= sub * (item.diskonPersen/100);
+    }
+    if(item.diskonRp){
+        sub -= item.diskonRp;
+    }
+    if(sub < 0) sub = 0;
+    return sub;
+}
+
 function renderItemsPenjualan() {
     tableListJualBody.innerHTML = '';
     itemsPenjualan.forEach((item, idx) => {
         const tr = document.createElement('tr');
+        const subTotal = hitungSubTotal(item);
         tr.innerHTML = `
             <td>${item.nama}</td>
             <td>${formatRupiah(item.harga)}</td>
             <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input"></td>
+            <td><input type="number" min="0" value="${item.diskonPersen || 0}" data-index="${idx}" class="diskon-persen-input" style="width:80px;"></td>
+            <td><input type="number" min="0" value="${item.diskonRp || 0}" data-index="${idx}" class="diskon-rp-input" style="width:100px;"></td>
+            <td class="subtotal-cell">${formatRupiah(subTotal)}</td>
             <td><button type="button" class="btn-hapus-jual" data-index="${idx}">Hapus</button></td>
         `;
         tableListJualBody.appendChild(tr);
@@ -362,6 +378,27 @@ function renderItemsPenjualan() {
             if(val < 1) val = 1;
             itemsPenjualan[i].qty = val;
             e.target.value = val;
+            renderItemsPenjualan();
+        });
+    });
+    tableListJualBody.querySelectorAll('.diskon-persen-input').forEach(inp => {
+        inp.addEventListener('change', e => {
+            const i = e.target.getAttribute('data-index');
+            let val = parseFloat(e.target.value);
+            if(val < 0) val = 0;
+            itemsPenjualan[i].diskonPersen = val;
+            e.target.value = val;
+            renderItemsPenjualan();
+        });
+    });
+    tableListJualBody.querySelectorAll('.diskon-rp-input').forEach(inp => {
+        inp.addEventListener('change', e => {
+            const i = e.target.getAttribute('data-index');
+            let val = parseFloat(e.target.value);
+            if(val < 0) val = 0;
+            itemsPenjualan[i].diskonRp = val;
+            e.target.value = val;
+            renderItemsPenjualan();
         });
     });
     tableListJualBody.querySelectorAll('.btn-hapus-jual').forEach(btn => {
@@ -394,7 +431,7 @@ function showSelectVariasi(barang){
         li.textContent = namaVar || `Varian ${idx+1}`;
         li.addEventListener('click', () => {
             modalSelectVariasi.style.display = 'none';
-            itemsPenjualan.push({ id: barang.id, varIndex: idx, nama: `${barang.namaBarang} - ${namaVar}`, harga: barang.hargaJual, qty: 1 });
+            itemsPenjualan.push({ id: barang.id, varIndex: idx, nama: `${barang.namaBarang} - ${namaVar}`, harga: barang.hargaJual, qty: 1, diskonPersen: 0, diskonRp: 0 });
             renderItemsPenjualan();
         });
         listSelectVariasi.appendChild(li);
@@ -406,7 +443,7 @@ function pilihBarang(barang){
     if(barang.variations && barang.variations.length > 0){
         showSelectVariasi(barang);
     } else {
-        itemsPenjualan.push({ id: barang.id, nama: barang.namaBarang, harga: barang.hargaJual, qty: 1 });
+        itemsPenjualan.push({ id: barang.id, nama: barang.namaBarang, harga: barang.hargaJual, qty: 1, diskonPersen: 0, diskonRp: 0 });
         renderItemsPenjualan();
     }
 }
@@ -452,7 +489,7 @@ inputCariBarang.addEventListener("keydown", e => {
 
 formPenjualan.addEventListener('submit', e => {
     e.preventDefault();
-    const total = itemsPenjualan.reduce((sum, it) => sum + it.harga * it.qty, 0);
+    const total = itemsPenjualan.reduce((sum, it) => sum + hitungSubTotal(it), 0);
     const data = {
         tanggal: new Date().toISOString().split("T")[0],
         total,
