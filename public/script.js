@@ -367,7 +367,7 @@ function renderItemsPenjualan() {
             <td><input type="number" min="0" value="${item.diskonRp || 0}" data-index="${idx}" class="diskon-rp-input" style="width:120px;"></td>
             <td class="subtotal-cell">${formatRupiah(subTotal)}</td>
             <td>
-              <button type="button" class="btn-add-jual" data-id="${item.id}">+</button>
+              <button type="button" class="btn-add-jual" data-id="${item.id}">Tambah</button>
               <button type="button" class="btn-hapus-jual" data-index="${idx}">Hapus</button>
             </td>
         `;
@@ -443,6 +443,7 @@ function showSelectVariasi(barang){
             modalSelectVariasi.style.display = 'none';
             itemsPenjualan.push({ id: barang.id, varIndex: idx, nama: `${barang.namaBarang} - ${namaVar}`, harga: barang.hargaJual, qty: 1, diskonPersen: 0, diskonRp: 0 });
             renderItemsPenjualan();
+            inputCariBarang.focus();
         });
         listSelectVariasi.appendChild(li);
     });
