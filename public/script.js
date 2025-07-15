@@ -456,7 +456,12 @@ btnAddPenjualan.addEventListener('click', () => {
     inputNoResi.focus();
 });
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
-window.addEventListener('click', (e) => { if(e.target === modalPenjualan) modalPenjualan.style.display = 'none'; });
+// Tutup modal penjualan saat menekan tombol Escape
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && modalPenjualan.style.display === 'block') {
+        modalPenjualan.style.display = 'none';
+    }
+});
 closeSelectBarang.addEventListener("click", () => modalSelectBarang.style.display = "none");
 closeSelectVariasi.addEventListener("click", () => modalSelectVariasi.style.display = "none");
 window.addEventListener("click", (e) => { if(e.target === modalSelectBarang) modalSelectBarang.style.display = "none"; });
