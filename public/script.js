@@ -436,10 +436,15 @@ function showSelectBarang(results){
 function showSelectVariasi(barang){
     listSelectVariasi.innerHTML = '';
     barang.variations.forEach((v, idx) => {
-        const namaVar = `${v.warna || ''}${v.ukuran ? ' ' + v.ukuran : ''}`.trim();
+        const warna = v.warna || '';
+        const ukuran = v.ukuran || '';
+        const namaVar = `${warna}${ukuran ? ' ' + ukuran : ''}`.trim();
         const stokText = typeof v.stok === 'number' ? v.stok : 0;
         const li = document.createElement('li');
-        li.innerHTML = `<span class="var-name">${namaVar || `Varian ${idx+1}`}</span><span class="var-stock">(${stokText})</span>`;
+        li.innerHTML = `
+            <span class="var-col">${warna}</span>
+            <span class="var-col">${ukuran}</span>
+            <span class="var-stock">(${stokText})</span>`;
         li.addEventListener('click', () => {
             modalSelectVariasi.style.display = 'none';
             itemsPenjualan.push({ id: barang.id, varIndex: idx, nama: `${barang.namaBarang} - ${namaVar}`, harga: barang.hargaJual, qty: 1, diskonPersen: 0, diskonRp: 0 });

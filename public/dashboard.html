@@ -372,6 +372,7 @@
     .btn-add-jual {
       background-color: #2ecc71;
       color: #fff;
+    }
       /* Tampilan daftar pilihan pada modal */
     .select-list {
       list-style: none;
@@ -397,6 +398,24 @@
       text-align: right;
       font-weight: bold;
     }
+    .select-list .var-col {
+      flex: 1;
+    }
+    .select-header {
+      display: flex;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 6px;
+    }
+    .select-header span {
+      flex: 1;
+    }
+    .select-header .stock-col {
+      border-left: 1px solid #ddd;
+      padding-left: 12px;
+      min-width: 40px;
+      text-align: right;
     }
   </style>
 </head>
@@ -558,6 +577,11 @@
   <div class="modal-content">
     <span class="close-btn" id="closeSelectVariasi">&times;</span>
     <h3>Pilih Variasi</h3>
+    <div class="select-header" id="headerVariasi">
+      <span>Variasi</span>
+      <span>Variasi</span>
+      <span class="stock-col">Stok</span>
+    </div>
     <ul id="listSelectVariasi" class="select-list"></ul>
   </div>
 </div>
