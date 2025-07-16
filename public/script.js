@@ -437,8 +437,9 @@ function showSelectVariasi(barang){
     listSelectVariasi.innerHTML = '';
     barang.variations.forEach((v, idx) => {
         const namaVar = `${v.warna || ''}${v.ukuran ? ' ' + v.ukuran : ''}`.trim();
+        const stokText = typeof v.stok === 'number' ? v.stok : 0;
         const li = document.createElement('li');
-        li.textContent = namaVar || `Varian ${idx+1}`;
+        li.textContent = (namaVar || `Varian ${idx+1}`) + ` (Stok: ${stokText})`;
         li.addEventListener('click', () => {
             modalSelectVariasi.style.display = 'none';
             itemsPenjualan.push({ id: barang.id, varIndex: idx, nama: `${barang.namaBarang} - ${namaVar}`, harga: barang.hargaJual, qty: 1, diskonPersen: 0, diskonRp: 0 });
