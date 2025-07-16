@@ -383,14 +383,13 @@
       padding: 8px 12px;
       border: 1px solid #ddd;
       cursor: pointer;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr 70px;
       align-items: center;
       border-radius: 4px;
       margin-bottom: 6px;
     }
-    .select-list li:hover {
-      background: #f2f2f2;
-    }
+    .select-list li:hover,
     .select-list li:focus {
       background: rgba(0, 123, 255, 0.3);
       outline: none;
@@ -398,28 +397,29 @@
     .select-list .var-stock {
       border-left: 1px solid #ddd;
       padding-left: 12px;
-      min-width: 40px;
+      width: 70px;
       text-align: right;
       font-weight: bold;
     }
     .select-list .var-col {
-      flex: 1;
       padding-right: 12px;
     }
     .select-header {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr 70px;
+      align-items: center;
       font-weight: bold;
       padding: 8px 12px;
       border-bottom: 1px solid #ddd;
       margin-bottom: 6px;
     }
     .select-header span {
-      flex: 1;
+      padding-right: 12px;
     }
     .select-header .stock-col {
       border-left: 1px solid #ddd;
       padding-left: 12px;
-      min-width: 40px;
+      width: 70px;
       text-align: right;
     }
   </style>
