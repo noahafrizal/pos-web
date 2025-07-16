@@ -423,7 +423,9 @@ function showSelectBarang(results){
     listSelectBarang.innerHTML = '';
     results.forEach((barang, idx) => {
         const li = document.createElement('li');
-        li.textContent = `${barang.kodeBarang} - ${barang.namaBarang}`;
+        li.innerHTML = `
+            <span class="kode-col">${barang.kodeBarang}</span>
+            <span class="nama-col">${barang.namaBarang}</span>`;
         li.setAttribute('tabindex', '0');
         li.addEventListener('click', () => {
             modalSelectBarang.style.display = 'none';

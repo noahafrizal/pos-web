@@ -384,10 +384,15 @@
       border: 1px solid #ddd;
       cursor: pointer;
       display: grid;
-      grid-template-columns: 1fr 1fr 70px;
       align-items: center;
       border-radius: 4px;
       margin-bottom: 6px;
+    }
+    #listSelectBarang li {
+      grid-template-columns: 20ch auto;
+    }
+    #listSelectVariasi li {
+      grid-template-columns: 1fr 1fr 70px;
     }
     .select-list li:hover,
     .select-list li:focus {
@@ -404,9 +409,16 @@
     .select-list .var-col {
       padding-right: 12px;
     }
+    .select-list .kode-col {
+      padding-right: 12px;
+      width: 20ch;
+      white-space: nowrap;
+    }
+    .select-list .nama-col {
+      padding-right: 12px;
+    }
     .select-header {
       display: grid;
-      grid-template-columns: 1fr 1fr 70px;
       align-items: center;
       font-weight: bold;
       padding: 8px 12px;
@@ -416,7 +428,13 @@
     .select-header span {
       padding-right: 12px;
     }
-    .select-header .stock-col {
+    #headerBarang {
+      grid-template-columns: 20ch auto;
+    }
+    #headerVariasi {
+      grid-template-columns: 1fr 1fr 70px;
+    }
+    #headerVariasi .stock-col {
       border-left: 1px solid #ddd;
       padding-left: 12px;
       width: 70px;
@@ -573,6 +591,10 @@
   <div class="modal-content">
     <span class="close-btn" id="closeSelectBarang">&times;</span>
     <h3>Pilih Barang</h3>
+    <div class="select-header" id="headerBarang">
+      <span>Kode Barang</span>
+      <span>Nama Barang</span>
+    </div>
     <ul id="listSelectBarang" class="select-list"></ul>
   </div>
 </div>
