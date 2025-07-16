@@ -421,16 +421,31 @@ function renderItemsPenjualan() {
 }
 function showSelectBarang(results){
     listSelectBarang.innerHTML = '';
-    results.forEach(barang => {
+    results.forEach((barang, idx) => {
         const li = document.createElement('li');
         li.textContent = `${barang.kodeBarang} - ${barang.namaBarang}`;
+        li.setAttribute('tabindex', '0');
         li.addEventListener('click', () => {
             modalSelectBarang.style.display = 'none';
             pilihBarang(barang);
         });
+        li.addEventListener('keydown', e => {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                li.click();
+            } else if(e.key === 'ArrowDown') {
+                e.preventDefault();
+                li.nextElementSibling && li.nextElementSibling.focus();
+            } else if(e.key === 'ArrowUp') {
+                e.preventDefault();
+                li.previousElementSibling && li.previousElementSibling.focus();
+            }
+        });
         listSelectBarang.appendChild(li);
     });
     modalSelectBarang.style.display = 'block';
+    const first = listSelectBarang.querySelector('li');
+    if(first) first.focus();
 }
 
 function showSelectVariasi(barang){
