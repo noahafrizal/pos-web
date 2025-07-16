@@ -384,12 +384,16 @@
       border: 1px solid #ddd;
       cursor: pointer;
       display: flex;
-      justify-content: space-between;
+      align-items: center;
       border-radius: 4px;
       margin-bottom: 6px;
     }
     .select-list li:hover {
       background: #f2f2f2;
+    }
+    .select-list li:focus {
+      background: rgba(0, 123, 255, 0.3);
+      outline: none;
     }
     .select-list .var-stock {
       border-left: 1px solid #ddd;
@@ -400,6 +404,7 @@
     }
     .select-list .var-col {
       flex: 1;
+      padding-right: 12px;
     }
     .select-header {
       display: flex;

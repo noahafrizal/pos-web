@@ -441,6 +441,7 @@ function showSelectVariasi(barang){
         const namaVar = `${warna}${ukuran ? ' ' + ukuran : ''}`.trim();
         const stokText = typeof v.stok === 'number' ? v.stok : 0;
         const li = document.createElement('li');
+        li.setAttribute('tabindex', '0');
         li.innerHTML = `
             <span class="var-col">${warna}</span>
             <span class="var-col">${ukuran}</span>
@@ -451,9 +452,23 @@ function showSelectVariasi(barang){
             renderItemsPenjualan();
             inputCariBarang.focus();
         });
+        li.addEventListener('keydown', e => {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                li.click();
+            } else if(e.key === 'ArrowDown') {
+                e.preventDefault();
+                li.nextElementSibling && li.nextElementSibling.focus();
+            } else if(e.key === 'ArrowUp') {
+                e.preventDefault();
+                li.previousElementSibling && li.previousElementSibling.focus();
+            }
+        });
         listSelectVariasi.appendChild(li);
     });
     modalSelectVariasi.style.display = 'block';
+    const first = listSelectVariasi.querySelector('li');
+    if(first) first.focus();
 }
 
 function pilihBarang(barang){
