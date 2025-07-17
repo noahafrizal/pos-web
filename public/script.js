@@ -34,6 +34,13 @@ function formatRupiahInput(value) {
 function parseRupiahInput(value) {
     return parseNumberFromDots(value.replace(/[^0-9.]/g, ''));
 }
+function generateNoNota(dateStr) {
+    const [year, month, day] = dateStr.split('-');
+    const ddmmyy = day + month + year.slice(2);
+    const count = dataPenjualan.filter(p => p.tanggal === dateStr).length;
+    const seq = String(count + 1).padStart(4, '0');
+    return `ELN-${ddmmyy}${seq}`;
+}
 // Render daftar barang dengan tombol Edit dan Hapus
 function renderListBarang(dataToRender) {
     const tbody = document.querySelector('#tableBarang tbody');
@@ -140,6 +147,7 @@ const formPenjualan = document.getElementById('formPenjualan');
 const inputNoResi = document.getElementById('noResi');
 const inputTanggalPenjualan = document.getElementById('tanggalPenjualan');
 const inputCariBarang = document.getElementById('cariBarang');
+const inputNoNota = document.getElementById('noNota');
 const tableListJualBody = document.querySelector('#tableListJual tbody');
 const totalPcsEl = document.getElementById('totalPcs');
 const subTotalEl = document.getElementById('subTotal');
@@ -550,6 +558,7 @@ function openPenjualanForm() {
     const today = new Date().toISOString().split('T')[0];
     inputTanggalPenjualan.value = today;
     inputTanggalPenjualan.max = today;
+    inputNoNota.value = generateNoNota(today);
     diskonPersenGlobalInput.value = formatPercentInput('0');
     diskonRpGlobalInput.value = formatRupiahInput('0');
     updateSummary();
@@ -606,6 +615,9 @@ inputCariBarang.addEventListener("keydown", e => {
         renderItemsPenjualan();
         inputCariBarang.value = '';
     }
+});
+inputTanggalPenjualan.addEventListener('change', () => {
+    inputNoNota.value = generateNoNota(inputTanggalPenjualan.value);
 });
 diskonPersenGlobalInput.addEventListener('input', () => {
     const persen = parsePercentInput(diskonPersenGlobalInput.value);

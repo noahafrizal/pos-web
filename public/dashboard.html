@@ -348,7 +348,8 @@
     /* Perkecil kolom input pada modal penjualan */
     #modalPenjualan #noResi,
     #modalPenjualan #tanggalPenjualan,
-    #modalPenjualan #cariBarang {
+    #modalPenjualan #cariBarang,
+    #modalPenjualan #noNota {
       width: 25ch;
     }
     #formPenjualan .inline-fields {
@@ -608,8 +609,16 @@
           <input type="date" id="tanggalPenjualan" />
         </div>
       </div>
-      <label for="cariBarang">NAMA / KODE BARANG:</label>
-      <input type="text" id="cariBarang" />
+      <div class="inline-fields">
+        <div class="field-group">
+          <label for="cariBarang">NAMA / KODE BARANG:</label>
+          <input type="text" id="cariBarang" style="width:25ch;" />
+        </div>
+        <div class="field-group">
+          <label for="noNota">NO NOTA:</label>
+          <input type="text" id="noNota" style="width:25ch;" readonly />
+        </div>
+      </div>
       <table id="tableListJual" style="margin-top:20px;">
         <thead>
           <tr>
