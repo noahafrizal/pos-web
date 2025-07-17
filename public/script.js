@@ -600,6 +600,10 @@ diskonRpGlobalInput.addEventListener('input', e => {
 
 formPenjualan.addEventListener('submit', e => {
     e.preventDefault();
+    if(itemsPenjualan.length === 0){
+        alert('Tambahkan minimal satu barang ke daftar penjualan.');
+        return;
+    }
     const total = itemsPenjualan.reduce((sum, it) => sum + hitungSubTotal(it), 0);
     const data = {
         tanggal: new Date().toISOString().split("T")[0],
