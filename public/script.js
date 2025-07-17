@@ -17,6 +17,23 @@ function formatNumberWithDots(value) {
 function parseNumberFromDots(value) {
     return parseInt(value.replace(/\./g, '')) || 0;
 }
+function formatPercentInput(value) {
+    const digits = value.replace(/\D/g, '');
+    return digits + '%';
+}
+
+function parsePercentInput(value) {
+    return parseInt(value.replace(/\D/g, '')) || 0;
+}
+
+function formatRupiahInput(value) {
+    const digits = value.replace(/\D/g, '');
+    return 'Rp ' + formatNumberWithDots(digits);
+}
+
+function parseRupiahInput(value) {
+    return parseNumberFromDots(value.replace(/[^0-9.]/g, ''));
+}
 // Render daftar barang dengan tombol Edit dan Hapus
 function renderListBarang(dataToRender) {
     const tbody = document.querySelector('#tableBarang tbody');
@@ -370,6 +387,7 @@ function updateSummary(){
     const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
     totalPcsEl.textContent = totalPcs;
     subTotalEl.textContent = formatRupiah(subTotal);
+    const dRp = parseRupiahInput(diskonRpGlobalInput.value);
     let grand = subTotal - dRp;
     if(grand < 0) grand = 0;
     grandTotalEl.textContent = formatRupiah(grand);
@@ -528,8 +546,8 @@ function openPenjualanForm() {
     itemsPenjualan = [];
     renderItemsPenjualan();
     inputNoResi.focus();
-    diskonPersenGlobalInput.value = 0;
-    diskonRpGlobalInput.value = 0;
+    diskonPersenGlobalInput.value = formatPercentInput('0');
+    diskonRpGlobalInput.value = formatRupiahInput('0');
     updateSummary();
 }
 
@@ -586,22 +604,21 @@ inputCariBarang.addEventListener("keydown", e => {
     }
 });
 diskonPersenGlobalInput.addEventListener('input', () => {
-    let persen = parseFloat(diskonPersenGlobalInput.value);
-    if(isNaN(persen) || persen < 0) persen = 0;
-    diskonPersenGlobalInput.value = persen;
+    const persen = parsePercentInput(diskonPersenGlobalInput.value);
+    diskonPersenGlobalInput.value = formatPercentInput(String(persen));
     const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
     const rp = Math.round(subTotal * (persen/100));
-    diskonRpGlobalInput.value = formatNumberWithDots(String(rp));
+    diskonRpGlobalInput.value = formatRupiahInput(String(rp));
     updateSummary();
 });
 
 diskonRpGlobalInput.addEventListener('input', () => {
-    const val = parseNumberFromDots(diskonRpGlobalInput.value);
-    diskonRpGlobalInput.value = formatNumberWithDots(String(val));
+    const val = parseRupiahInput(diskonRpGlobalInput.value);
+    diskonRpGlobalInput.value = formatRupiahInput(String(val));
     const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
     let persen = 0;
     if(subTotal > 0) persen = Math.round(val / subTotal * 100);
-    diskonPersenGlobalInput.value = persen;
+    diskonPersenGlobalInput.value = formatPercentInput(String(persen));
     updateSummary();
 });
 
