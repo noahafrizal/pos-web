@@ -34,13 +34,6 @@ function formatRupiahInput(value) {
 function parseRupiahInput(value) {
     return parseNumberFromDots(value.replace(/[^0-9.]/g, ''));
 }
-function generateNoNota(dateStr) {
-    const [year, month, day] = dateStr.split('-');
-    const ddmmyy = day + month + year.slice(2);
-    const count = dataPenjualan.filter(p => p.tanggal === dateStr).length;
-    const seq = String(count + 1).padStart(4, '0');
-    return `ELN-${ddmmyy}${seq}`;
-}
 // Render daftar barang dengan tombol Edit dan Hapus
 function renderListBarang(dataToRender) {
     const tbody = document.querySelector('#tableBarang tbody');
@@ -145,9 +138,7 @@ const modalPenjualan = document.getElementById('modalPenjualan');
 const closePenjualan = document.getElementById('closePenjualan');
 const formPenjualan = document.getElementById('formPenjualan');
 const inputNoResi = document.getElementById('noResi');
-const inputTanggalPenjualan = document.getElementById('tanggalPenjualan');
 const inputCariBarang = document.getElementById('cariBarang');
-const inputNoNota = document.getElementById('noNota');
 const tableListJualBody = document.querySelector('#tableListJual tbody');
 const totalPcsEl = document.getElementById('totalPcs');
 const subTotalEl = document.getElementById('subTotal');
@@ -551,14 +542,11 @@ function pilihBarang(barang){
 
 function openPenjualanForm() {
     modalPenjualan.style.display = 'block';
+    modalPenjualan.classList.remove('dimmed');
     formPenjualan.reset();
     itemsPenjualan = [];
     renderItemsPenjualan();
     inputNoResi.focus();
-    const today = new Date().toISOString().split('T')[0];
-    inputTanggalPenjualan.value = today;
-    inputTanggalPenjualan.max = today;
-    inputNoNota.value = generateNoNota(today);
     diskonPersenGlobalInput.value = formatPercentInput('0');
     diskonRpGlobalInput.value = formatRupiahInput('0');
     updateSummary();
@@ -566,14 +554,6 @@ function openPenjualanForm() {
 
 btnAddPenjualan.addEventListener('click', openPenjualanForm);
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
-// Membuat modal penjualan transparan saat area luar diklik
-modalPenjualan.addEventListener('click', (e) => {
-    if(e.target === modalPenjualan){
-        modalPenjualan.classList.add('dimmed');
-    } else {
-        modalPenjualan.classList.remove('dimmed');
-    }
-});
 // Tangani tombol Escape untuk setiap modal
 document.addEventListener('keydown', (e) => {
     if(e.key === 'Escape') {
@@ -624,9 +604,6 @@ inputCariBarang.addEventListener("keydown", e => {
         inputCariBarang.value = '';
     }
 });
-inputTanggalPenjualan.addEventListener('change', () => {
-    inputNoNota.value = generateNoNota(inputTanggalPenjualan.value);
-});
 diskonPersenGlobalInput.addEventListener('input', () => {
     const persen = parsePercentInput(diskonPersenGlobalInput.value);
     diskonPersenGlobalInput.value = formatPercentInput(String(persen));
@@ -654,7 +631,7 @@ formPenjualan.addEventListener('submit', e => {
     }
     const total = itemsPenjualan.reduce((sum, it) => sum + hitungSubTotal(it), 0);
     const data = {
-        tanggal: inputTanggalPenjualan.value || new Date().toISOString().split("T")[0],
+        tanggal: new Date().toISOString().split("T")[0],
         total,
         items: itemsPenjualan.map(it => ({ id: it.id, qty: it.qty, varIndex: it.varIndex }))
     };
