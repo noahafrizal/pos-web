@@ -138,6 +138,7 @@ const modalPenjualan = document.getElementById('modalPenjualan');
 const closePenjualan = document.getElementById('closePenjualan');
 const formPenjualan = document.getElementById('formPenjualan');
 const inputNoResi = document.getElementById('noResi');
+const inputTanggalPenjualan = document.getElementById('tanggalPenjualan');
 const inputCariBarang = document.getElementById('cariBarang');
 const tableListJualBody = document.querySelector('#tableListJual tbody');
 const totalPcsEl = document.getElementById('totalPcs');
@@ -546,6 +547,9 @@ function openPenjualanForm() {
     itemsPenjualan = [];
     renderItemsPenjualan();
     inputNoResi.focus();
+    const today = new Date().toISOString().split('T')[0];
+    inputTanggalPenjualan.value = today;
+    inputTanggalPenjualan.max = today;
     diskonPersenGlobalInput.value = formatPercentInput('0');
     diskonRpGlobalInput.value = formatRupiahInput('0');
     updateSummary();
@@ -630,7 +634,7 @@ formPenjualan.addEventListener('submit', e => {
     }
     const total = itemsPenjualan.reduce((sum, it) => sum + hitungSubTotal(it), 0);
     const data = {
-        tanggal: new Date().toISOString().split("T")[0],
+        tanggal: inputTanggalPenjualan.value || new Date().toISOString().split("T")[0],
         total,
         items: itemsPenjualan.map(it => ({ id: it.id, qty: it.qty, varIndex: it.varIndex }))
     };
