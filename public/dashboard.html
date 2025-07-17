@@ -353,12 +353,12 @@
     }
     #formPenjualan .inline-fields {
       display: flex;
-      align-items: flex-end;
       gap: 15px;
       margin-top: 20px;
     }
-    #formPenjualan .inline-fields label {
-      margin-top: 0;
+    #formPenjualan .inline-fields .field-group {
+      display: flex;
+      flex-direction: column;
     }
     /* Lebarkan kolom diskon rupiah agar muat 9 digit
        dan kolom diskon persen muat 4 digit */
@@ -599,10 +599,14 @@
     <span class="close-btn" id="closePenjualan">&times;</span>
     <form id="formPenjualan" autocomplete="off">
       <div class="inline-fields">
-        <label for="noResi">NO RESI:</label>
-        <input type="text" id="noResi" style="width:25ch;" />
-        <label for="tanggalPenjualan">TANGGAL:</label>
-        <input type="date" id="tanggalPenjualan" />
+        <div class="field-group">
+          <label for="noResi">NO RESI:</label>
+          <input type="text" id="noResi" style="width:25ch;" />
+        </div>
+        <div class="field-group">
+          <label for="tanggalPenjualan">TANGGAL:</label>
+          <input type="date" id="tanggalPenjualan" />
+        </div>
       </div>
       <label for="cariBarang">NAMA / KODE BARANG:</label>
       <input type="text" id="cariBarang" />
