@@ -458,10 +458,11 @@
       width: 100px;
     }
     #diskonPersenGlobal {
-      width: 60px;
+      width: 50px;
+      margin-right: 8px;
     }
     #diskonRpGlobal {
-      width: 100px;
+      width: 120px;
     }
   </style>
 </head>
@@ -615,12 +616,11 @@
           <td><span id="subTotal">Rp 0</span></td>
         </tr>
         <tr>
-          <td>Diskon (%):</td>
-          <td><input type="number" id="diskonPersenGlobal" value="0" min="0" /></td>
-        </tr>
-        <tr>
-          <td>Diskon (Rp):</td>
-          <td><input type="text" id="diskonRpGlobal" value="0" /></td>
+          <td>Diskon:</td>
+          <td>
+            <input type="number" id="diskonPersenGlobal" placeholder="%" value="0" min="0" />
+            <input type="text" id="diskonRpGlobal" placeholder="Rp" value="0" />
+          </td>
         </tr>
         <tr>
           <td>Grand Total:</td>

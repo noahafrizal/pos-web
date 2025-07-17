@@ -370,14 +370,7 @@ function updateSummary(){
     const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
     totalPcsEl.textContent = totalPcs;
     subTotalEl.textContent = formatRupiah(subTotal);
-    let grand = subTotal;
-    const dPersen = parseFloat(diskonPersenGlobalInput.value) || 0;
-    if(dPersen > 0){
-        grand -= grand * (dPersen/100);
-    }
-    const dRp = parseNumberFromDots(diskonRpGlobalInput.value);
-    diskonRpGlobalInput.value = formatNumberWithDots(diskonRpGlobalInput.value);
-    grand -= dRp;
+    let grand = subTotal - dRp;
     if(grand < 0) grand = 0;
     grandTotalEl.textContent = formatRupiah(grand);
 }
@@ -592,9 +585,23 @@ inputCariBarang.addEventListener("keydown", e => {
         inputCariBarang.value = '';
     }
 });
-diskonPersenGlobalInput.addEventListener('input', updateSummary);
-diskonRpGlobalInput.addEventListener('input', e => {
-    e.target.value = formatNumberWithDots(e.target.value);
+diskonPersenGlobalInput.addEventListener('input', () => {
+    let persen = parseFloat(diskonPersenGlobalInput.value);
+    if(isNaN(persen) || persen < 0) persen = 0;
+    diskonPersenGlobalInput.value = persen;
+    const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
+    const rp = Math.round(subTotal * (persen/100));
+    diskonRpGlobalInput.value = formatNumberWithDots(String(rp));
+    updateSummary();
+});
+
+diskonRpGlobalInput.addEventListener('input', () => {
+    const val = parseNumberFromDots(diskonRpGlobalInput.value);
+    diskonRpGlobalInput.value = formatNumberWithDots(String(val));
+    const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
+    let persen = 0;
+    if(subTotal > 0) persen = Math.round(val / subTotal * 100);
+    diskonPersenGlobalInput.value = persen;
     updateSummary();
 });
 
