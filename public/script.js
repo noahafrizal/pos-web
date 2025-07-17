@@ -529,7 +529,7 @@ function pilihBarang(barang){
     }
 }
 
-btnAddPenjualan.addEventListener('click', () => {
+function openPenjualanForm() {
     modalPenjualan.style.display = 'block';
     formPenjualan.reset();
     itemsPenjualan = [];
@@ -538,7 +538,9 @@ btnAddPenjualan.addEventListener('click', () => {
     diskonPersenGlobalInput.value = 0;
     diskonRpGlobalInput.value = 0;
     updateSummary();
-});
+}
+
+btnAddPenjualan.addEventListener('click', openPenjualanForm);
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
 // Tangani tombol Escape untuk setiap modal
 document.addEventListener('keydown', (e) => {
@@ -611,8 +613,8 @@ formPenjualan.addEventListener('submit', e => {
     })
     .then(res => res.json())
     .then(() => {
-        modalPenjualan.style.display = 'none';
         fetchDataPenjualan();
+        openPenjualanForm();
     })
     .catch(err => {
         alert('Gagal menyimpan penjualan');
