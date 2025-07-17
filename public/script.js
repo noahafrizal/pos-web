@@ -618,6 +618,7 @@ formPenjualan.addEventListener('submit', e => {
     .then(res => res.json())
     .then(() => {
         fetchDataPenjualan();
+        fetchDataBarang();
         openPenjualanForm();
     })
     .catch(err => {
