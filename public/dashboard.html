@@ -351,6 +351,15 @@
     #modalPenjualan #cariBarang {
       width: 25ch;
     }
+    #formPenjualan .inline-fields {
+      display: flex;
+      align-items: flex-end;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    #formPenjualan .inline-fields label {
+      margin-top: 0;
+    }
     /* Lebarkan kolom diskon rupiah agar muat 9 digit
        dan kolom diskon persen muat 4 digit */
     #tableListJual .diskon-persen-input {
@@ -589,10 +598,12 @@
   <div class="modal-content">
     <span class="close-btn" id="closePenjualan">&times;</span>
     <form id="formPenjualan" autocomplete="off">
-      <label for="noResi">NO RESI:</label>
-      <input type="text" id="noResi" />
-      <label for="tanggalPenjualan">TANGGAL:</label>
-      <input type="date" id="tanggalPenjualan" />
+      <div class="inline-fields">
+        <label for="noResi">NO RESI:</label>
+        <input type="text" id="noResi" style="width:25ch;" />
+        <label for="tanggalPenjualan">TANGGAL:</label>
+        <input type="date" id="tanggalPenjualan" />
+      </div>
       <label for="cariBarang">NAMA / KODE BARANG:</label>
       <input type="text" id="cariBarang" />
       <table id="tableListJual" style="margin-top:20px;">
