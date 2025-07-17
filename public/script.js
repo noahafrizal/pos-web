@@ -552,6 +552,13 @@ document.addEventListener('keydown', (e) => {
         } else if(modalPenjualan.style.display === 'block') {
             modalPenjualan.style.display = 'none';
         }
+        } else if(e.ctrlKey && e.key === 'Enter' && modalPenjualan.style.display === 'block') {
+        e.preventDefault();
+        if (typeof formPenjualan.requestSubmit === 'function') {
+            formPenjualan.requestSubmit();
+        } else {
+            formPenjualan.dispatchEvent(new Event('submit', {cancelable: true}));
+        }
     }
 });
 closeSelectBarang.addEventListener("click", () => modalSelectBarang.style.display = "none");
