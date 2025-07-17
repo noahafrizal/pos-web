@@ -116,6 +116,11 @@ const formPenjualan = document.getElementById('formPenjualan');
 const inputNoResi = document.getElementById('noResi');
 const inputCariBarang = document.getElementById('cariBarang');
 const tableListJualBody = document.querySelector('#tableListJual tbody');
+const totalPcsEl = document.getElementById('totalPcs');
+const subTotalEl = document.getElementById('subTotal');
+const grandTotalEl = document.getElementById('grandTotal');
+const diskonPersenGlobalInput = document.getElementById('diskonPersenGlobal');
+const diskonRpGlobalInput = document.getElementById('diskonRpGlobal');
 
 const searchInput = document.getElementById('searchInput'); // Pastikan searchInput ada di HTML
 const menuDataBarang = document.getElementById('menu-data-barang');
@@ -353,7 +358,21 @@ function hitungSubTotal(item){
     if(sub < 0) sub = 0;
     return sub;
 }
-
+function updateSummary(){
+    const totalPcs = itemsPenjualan.reduce((sum,it) => sum + Number(it.qty), 0);
+    const subTotal = itemsPenjualan.reduce((sum,it) => sum + hitungSubTotal(it), 0);
+    totalPcsEl.textContent = totalPcs;
+    subTotalEl.textContent = formatRupiah(subTotal);
+    let grand = subTotal;
+    const dPersen = parseFloat(diskonPersenGlobalInput.value) || 0;
+    if(dPersen > 0){
+        grand -= grand * (dPersen/100);
+    }
+    const dRp = parseFloat(diskonRpGlobalInput.value) || 0;
+    grand -= dRp;
+    if(grand < 0) grand = 0;
+    grandTotalEl.textContent = formatRupiah(grand);
+}
 function renderItemsPenjualan() {
     tableListJualBody.innerHTML = '';
     itemsPenjualan.forEach((item, idx) => {
@@ -418,6 +437,8 @@ function renderItemsPenjualan() {
             if(barang) pilihBarang(barang);
         });
     });
+
+    updateSummary();
 }
 function showSelectBarang(results){
     listSelectBarang.innerHTML = '';
@@ -503,6 +524,9 @@ btnAddPenjualan.addEventListener('click', () => {
     itemsPenjualan = [];
     renderItemsPenjualan();
     inputNoResi.focus();
+    diskonPersenGlobalInput.value = 0;
+    diskonRpGlobalInput.value = 0;
+    updateSummary();
 });
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
 // Tangani tombol Escape untuk setiap modal
@@ -548,6 +572,8 @@ inputCariBarang.addEventListener("keydown", e => {
         inputCariBarang.value = '';
     }
 });
+diskonPersenGlobalInput.addEventListener('change', updateSummary);
+diskonRpGlobalInput.addEventListener('change', updateSummary);
 
 formPenjualan.addEventListener('submit', e => {
     e.preventDefault();

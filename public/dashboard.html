@@ -440,6 +440,18 @@
       width: 70px;
       text-align: right;
     }
+    /* Ringkasan penjualan */
+    #summaryPenjualan {
+      margin-top: 15px;
+      float: right;
+      text-align: right;
+    }
+    #summaryPenjualan td {
+      padding: 4px 8px;
+    }
+    #summaryPenjualan input[type="number"] {
+      width: 120px;
+    }
   </style>
 </head>
 <body>
@@ -581,6 +593,28 @@
           </tr>
         </thead>
         <tbody></tbody>
+      </table>
+      <table id="summaryPenjualan">
+        <tr>
+          <td>Total Pcs:</td>
+          <td><span id="totalPcs">0</span></td>
+        </tr>
+        <tr>
+          <td>Sub Total:</td>
+          <td><span id="subTotal">Rp 0</span></td>
+        </tr>
+        <tr>
+          <td>Diskon (%):</td>
+          <td><input type="number" id="diskonPersenGlobal" value="0" min="0" /></td>
+        </tr>
+        <tr>
+          <td>Diskon (Rp):</td>
+          <td><input type="number" id="diskonRpGlobal" value="0" min="0" /></td>
+        </tr>
+        <tr>
+          <td>Grand Total:</td>
+          <td><span id="grandTotal">Rp 0</span></td>
+        </tr>
       </table>
       <button type="submit" class="btn-submit" style="margin-top:20px;">Simpan Penjualan</button>
     </form>
