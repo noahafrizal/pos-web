@@ -9,7 +9,14 @@ let itemsPenjualan = [];
 function formatRupiah(angka) {
     return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
+function formatNumberWithDots(value) {
+    const digits = value.replace(/\D/g, '');
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
 
+function parseNumberFromDots(value) {
+    return parseInt(value.replace(/\./g, '')) || 0;
+}
 // Render daftar barang dengan tombol Edit dan Hapus
 function renderListBarang(dataToRender) {
     const tbody = document.querySelector('#tableBarang tbody');
@@ -368,7 +375,8 @@ function updateSummary(){
     if(dPersen > 0){
         grand -= grand * (dPersen/100);
     }
-    const dRp = parseFloat(diskonRpGlobalInput.value) || 0;
+    const dRp = parseNumberFromDots(diskonRpGlobalInput.value);
+    diskonRpGlobalInput.value = formatNumberWithDots(diskonRpGlobalInput.value);
     grand -= dRp;
     if(grand < 0) grand = 0;
     grandTotalEl.textContent = formatRupiah(grand);
@@ -382,8 +390,8 @@ function renderItemsPenjualan() {
             <td>${item.nama}</td>
             <td>${formatRupiah(item.harga)}</td>
             <td><input type="number" min="1" value="${item.qty}" data-index="${idx}" class="qty-input" style="width:80px;"></td>
-            <td><input type="number" min="0" value="${item.diskonPersen || 0}" data-index="${idx}" class="diskon-persen-input" style="width:80px;"></td>
-            <td><input type="number" min="0" value="${item.diskonRp || 0}" data-index="${idx}" class="diskon-rp-input" style="width:120px;"></td>
+            <td><input type="number" min="0" value="${item.diskonPersen || 0}" data-index="${idx}" class="diskon-persen-input" style="width:60px;"></td>
+            <td><input type="text" value="${formatNumberWithDots(String(item.diskonRp || 0))}" data-index="${idx}" class="diskon-rp-input" style="width:100px;"></td>
             <td class="subtotal-cell">${formatRupiah(subTotal)}</td>
             <td>
               <button type="button" class="btn-add-jual" data-id="${item.id}">Tambah</button>
@@ -410,17 +418,20 @@ function renderItemsPenjualan() {
             if(val < 0) val = 0;
             itemsPenjualan[i].diskonPersen = val;
             e.target.value = val;
-            renderItemsPenjualan();
+            const subCell = inp.parentElement.nextElementSibling;
+            subCell.textContent = formatRupiah(hitungSubTotal(itemsPenjualan[i]));
+            updateSummary();
         });
     });
     tableListJualBody.querySelectorAll('.diskon-rp-input').forEach(inp => {
-        inp.addEventListener('change', e => {
+        inp.addEventListener('input', e => {
             const i = e.target.getAttribute('data-index');
-            let val = parseFloat(e.target.value);
-            if(val < 0) val = 0;
+            const val = parseNumberFromDots(e.target.value);
             itemsPenjualan[i].diskonRp = val;
-            e.target.value = val;
-            renderItemsPenjualan();
+            e.target.value = formatNumberWithDots(e.target.value);
+            const subCell = inp.parentElement.nextElementSibling;
+            subCell.textContent = formatRupiah(hitungSubTotal(itemsPenjualan[i]));
+            updateSummary();
         });
     });
     tableListJualBody.querySelectorAll('.btn-hapus-jual').forEach(btn => {
@@ -572,8 +583,11 @@ inputCariBarang.addEventListener("keydown", e => {
         inputCariBarang.value = '';
     }
 });
-diskonPersenGlobalInput.addEventListener('change', updateSummary);
-diskonRpGlobalInput.addEventListener('change', updateSummary);
+diskonPersenGlobalInput.addEventListener('input', updateSummary);
+diskonRpGlobalInput.addEventListener('input', e => {
+    e.target.value = formatNumberWithDots(e.target.value);
+    updateSummary();
+});
 
 formPenjualan.addEventListener('submit', e => {
     e.preventDefault();

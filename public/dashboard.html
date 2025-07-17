@@ -350,9 +350,13 @@
     #modalPenjualan #cariBarang {
       width: 25ch;
     }
-    /* Lebarkan kolom diskon rupiah agar muat 7 digit */
+    /* Lebarkan kolom diskon rupiah agar muat 9 digit
+       dan kolom diskon persen muat 4 digit */
+    #tableListJual .diskon-persen-input {
+      width: 60px;
+    }
     #tableListJual .diskon-rp-input {
-      width: 120px;
+      width: 100px;
     }
     /* Tombol hapus dan tambah item penjualan */
     .btn-hapus-jual,
@@ -443,14 +447,21 @@
     /* Ringkasan penjualan */
     #summaryPenjualan {
       margin-top: 15px;
-      float: right;
+      margin-left: auto;
       text-align: right;
     }
     #summaryPenjualan td {
       padding: 4px 8px;
     }
+    #summaryPenjualan input[type="text"],
     #summaryPenjualan input[type="number"] {
-      width: 120px;
+      width: 100px;
+    }
+    #diskonPersenGlobal {
+      width: 60px;
+    }
+    #diskonRpGlobal {
+      width: 100px;
     }
   </style>
 </head>
@@ -609,14 +620,14 @@
         </tr>
         <tr>
           <td>Diskon (Rp):</td>
-          <td><input type="number" id="diskonRpGlobal" value="0" min="0" /></td>
+          <td><input type="text" id="diskonRpGlobal" value="0" /></td>
         </tr>
         <tr>
           <td>Grand Total:</td>
           <td><span id="grandTotal">Rp 0</span></td>
         </tr>
       </table>
-      <button type="submit" class="btn-submit" style="margin-top:20px;">Simpan Penjualan</button>
+      <button type="submit" class="btn-submit">Simpan Penjualan</button>
     </form>
   </div>
 </div>
