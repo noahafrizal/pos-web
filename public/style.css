@@ -209,6 +209,11 @@ table tbody tr:nth-child(even){
     background-color: #f8f8f8;
 }
 
+#tablePenjualan th.tgl-col,
+#tablePenjualan td.tgl-col {
+    width: 10ch;
+}
+
 /* --- Pesan Sukses dan Info --- */
 
 .success-message {

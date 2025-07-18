@@ -34,6 +34,12 @@ function formatRupiahInput(value) {
 function parseRupiahInput(value) {
     return parseNumberFromDots(value.replace(/[^0-9.]/g, ''));
 }
+
+function formatTanggalDisplay(tgl){
+    if(!tgl) return '';
+    const [year, month, day] = tgl.split('-');
+    return `${day}/${month}/${year}`;
+}
 // Render daftar barang dengan tombol Edit dan Hapus
 function renderListBarang(dataToRender) {
     const tbody = document.querySelector('#tableBarang tbody');
@@ -102,11 +108,11 @@ function renderListPenjualan(data) {
         document.getElementById('msg-list-penjualan').textContent = '';
     }
 
-    data.forEach((item, index) => {
+    data.forEach((item) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${item.tanggal || ''}</td>
+            <td>${item.nota || ''}</td>
+            <td class="tgl-col">${formatTanggalDisplay(item.tanggal) || ''}</td>
             <td>${formatRupiah(item.total || 0)}</td>
         `;
         tbody.appendChild(tr);
@@ -673,6 +679,7 @@ formPenjualan.addEventListener('submit', e => {
     const data = {
         tanggal,
         total,
+        nota: inputNoNota.value,
         items: itemsPenjualan.map(it => ({ id: it.id, qty: it.qty, varIndex: it.varIndex }))
     };
     fetch('/api/penjualan', {

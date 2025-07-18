@@ -49,10 +49,16 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS penjualan (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nota TEXT,
       tanggal TEXT,
       total INTEGER
     )
   `);
+db.all('PRAGMA table_info(penjualan)', (err, cols) => {
+    if(!err && !cols.find(c => c.name === 'nota')){
+      db.run('ALTER TABLE penjualan ADD COLUMN nota TEXT');
+    }
+  });
 
   // Insert user admin default jika belum ada
   db.get('SELECT * FROM users WHERE username = ?', ['admin'], (err, row) => {
@@ -123,14 +129,22 @@ app.get('/api/penjualan', (req, res) => {
 
 // API tambah data penjualan sederhana
 app.post('/api/penjualan', (req, res) => {
-  const { tanggal, total, items } = req.body;
+  const { tanggal, total, items, nota } = req.body;
   if(!tanggal || total === undefined || !Array.isArray(items)){
     return res.status(400).json({ success:false, message:'Field penjualan tidak lengkap' });
   }
-  db.run('INSERT INTO penjualan(tanggal,total) VALUES(?,?)', [tanggal, total], function(err){
+  db.run('INSERT INTO penjualan(tanggal,total,nota) VALUES(?,?,?)', [tanggal, total, nota || null], function(err){
     if(err){
       console.error('Error tambah penjualan:', err.message);
       return res.status(500).json({ success:false, message:'Gagal menambah penjualan' });
+    }
+    const id = this.lastID;
+    let finalNota = nota;
+    if(!finalNota){
+      const [year, month, day] = tanggal.split('-');
+      const datePart = day + month + year.slice(-2);
+      finalNota = `ELN-${datePart}${String(id).padStart(4,'0')}`;
+      db.run('UPDATE penjualan SET nota=? WHERE id=?', [finalNota, id]);
     }
     // update stok barang
     items.forEach(it => {
@@ -149,7 +163,7 @@ app.post('/api/penjualan', (req, res) => {
         db.run('UPDATE barang SET stok=?, variasi=? WHERE id=?', [stok, JSON.stringify(variations), it.id]);
       });
     });
-    res.json({ success:true, id:this.lastID });
+    res.json({ success:true, id, nota: finalNota });
   });
 });
 
