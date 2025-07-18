@@ -97,6 +97,26 @@
     tbody tr:nth-child(even) {
       background-color: #f8f8f8;
     }
+    /* Ukuran kolom table penjualan */
+    #tablePenjualan {
+      table-layout: fixed;
+    }
+    #tablePenjualan th.tgl-col,
+    #tablePenjualan td.tgl-col {
+      width: 10ch;
+      max-width: 10ch;
+      padding: 16px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    #tablePenjualan th.nota-col,
+    #tablePenjualan td.nota-col {
+      width: 15ch;
+      max-width: 15ch;
+      padding: 16px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
     /* Info Message */
     #msg-list {
       margin-top: 18px;
