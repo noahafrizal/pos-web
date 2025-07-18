@@ -349,29 +349,29 @@ function hapusBarang(id) {
 
 // Fetch data barang dari backend dan render list
 function fetchDataBarang() {
-    fetch('/api/barang')
-    .then(res => res.json())
-    .then(data => {
-        dataBarang = data;
-        filteredDataBarang = dataBarang; // Awal tanpa filter
-        renderListBarang(filteredDataBarang);
-    })
-    .catch(err => {
-        console.error('Gagal mengambil data barang:', err);
-        alert('Gagal mengambil data barang dari server.');
-    });
+    return fetch('/api/barang')
+        .then(res => res.json())
+        .then(data => {
+            dataBarang = data;
+            filteredDataBarang = dataBarang; // Awal tanpa filter
+            renderListBarang(filteredDataBarang);
+        })
+        .catch(err => {
+            console.error('Gagal mengambil data barang:', err);
+            alert('Gagal mengambil data barang dari server.');
+        });
 }
 function fetchDataPenjualan() {
-    fetch('/api/penjualan')
-    .then(res => res.json())
-    .then(data => {
-        dataPenjualan = data;
-        renderListPenjualan(dataPenjualan);
-    })
-    .catch(err => {
-        console.error('Gagal mengambil data penjualan:', err);
-        alert('Gagal mengambil data penjualan dari server.');
-    });
+    return fetch('/api/penjualan')
+        .then(res => res.json())
+        .then(data => {
+            dataPenjualan = data;
+            renderListPenjualan(dataPenjualan);
+        })
+        .catch(err => {
+            console.error('Gagal mengambil data penjualan:', err);
+            alert('Gagal mengambil data penjualan dari server.');
+        });
 }
 // ----- Penjualan -----
 function hitungSubTotal(item){
@@ -681,9 +681,11 @@ formPenjualan.addEventListener('submit', e => {
         body: JSON.stringify(data)
     })
     .then(res => res.json())
+    .then(() => Promise.all([
+        fetchDataPenjualan(),
+        fetchDataBarang()
+    ]))
     .then(() => {
-        fetchDataPenjualan();
-        fetchDataBarang();
         openPenjualanForm();
     })
     .catch(err => {
