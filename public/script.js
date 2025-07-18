@@ -568,6 +568,12 @@ function openPenjualanForm() {
 
 btnAddPenjualan.addEventListener('click', openPenjualanForm);
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
+// Toggle efek transparan pada modal penjualan ketika area luar konten diklik
+modalPenjualan.addEventListener('click', (e) => {
+    if (e.target === modalPenjualan) {
+        modalPenjualan.classList.toggle('dimmed');
+    }
+});
 // Tangani tombol Escape untuk setiap modal
 document.addEventListener('keydown', (e) => {
     if(e.key === 'Escape') {
