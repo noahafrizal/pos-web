@@ -571,7 +571,11 @@ closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'n
 // Toggle efek transparan pada modal penjualan ketika area luar konten diklik
 modalPenjualan.addEventListener('click', (e) => {
     if (e.target === modalPenjualan) {
+        // klik overlay -> toggle transparansi
         modalPenjualan.classList.toggle('dimmed');
+         } else if (modalPenjualan.classList.contains('dimmed')) {
+        // klik konten -> kembalikan tampilan normal
+        modalPenjualan.classList.remove('dimmed');
     }
 });
 // Tangani tombol Escape untuk setiap modal
