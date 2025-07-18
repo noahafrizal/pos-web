@@ -146,6 +146,8 @@ const grandTotalEl = document.getElementById('grandTotal');
 const diskonPersenGlobalInput = document.getElementById('diskonPersenGlobal');
 const diskonRpGlobalInput = document.getElementById('diskonRpGlobal');
 const inputTanggalPenjualan = document.getElementById('tanggalPenjualan');
+const inputNoNota = document.getElementById('noNota');
+
 
 const searchInput = document.getElementById('searchInput'); // Pastikan searchInput ada di HTML
 const menuDataBarang = document.getElementById('menu-data-barang');
@@ -393,6 +395,13 @@ function updateSummary(){
     if(grand < 0) grand = 0;
     grandTotalEl.textContent = formatRupiah(grand);
 }
+function generateNoNota(tanggal){
+    const [year, month, day] = tanggal.split('-');
+    const datePart = day + month + year.slice(-2);
+    const count = dataPenjualan.filter(p => p.tanggal === tanggal).length + 1;
+    const serial = String(count).padStart(4,'0');
+    inputNoNota.value = `ELN-${datePart}${serial}`;
+}
 function renderItemsPenjualan() {
     tableListJualBody.innerHTML = '';
     itemsPenjualan.forEach((item, idx) => {
@@ -548,6 +557,7 @@ function openPenjualanForm() {
     const today = new Date().toISOString().split('T')[0];
     inputTanggalPenjualan.value = today;
     inputTanggalPenjualan.max = today;
+    generateNoNota(today);
     itemsPenjualan = [];
     renderItemsPenjualan();
     inputNoResi.focus();
@@ -625,6 +635,16 @@ diskonRpGlobalInput.addEventListener('input', () => {
     if(subTotal > 0) persen = Math.round(val / subTotal * 100);
     diskonPersenGlobalInput.value = formatPercentInput(String(persen));
     updateSummary();
+});
+
+inputTanggalPenjualan.addEventListener('change', () => {
+    const today = new Date().toISOString().split('T')[0];
+    let tgl = inputTanggalPenjualan.value || today;
+    if(tgl > today){
+        tgl = today;
+        inputTanggalPenjualan.value = today;
+    }
+    generateNoNota(tgl);
 });
 
 formPenjualan.addEventListener('submit', e => {
