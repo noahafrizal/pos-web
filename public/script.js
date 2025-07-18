@@ -145,6 +145,7 @@ const subTotalEl = document.getElementById('subTotal');
 const grandTotalEl = document.getElementById('grandTotal');
 const diskonPersenGlobalInput = document.getElementById('diskonPersenGlobal');
 const diskonRpGlobalInput = document.getElementById('diskonRpGlobal');
+const inputTanggalPenjualan = document.getElementById('tanggalPenjualan');
 
 const searchInput = document.getElementById('searchInput'); // Pastikan searchInput ada di HTML
 const menuDataBarang = document.getElementById('menu-data-barang');
@@ -544,6 +545,9 @@ function openPenjualanForm() {
     modalPenjualan.style.display = 'block';
     modalPenjualan.classList.remove('dimmed');
     formPenjualan.reset();
+    const today = new Date().toISOString().split('T')[0];
+    inputTanggalPenjualan.value = today;
+    inputTanggalPenjualan.max = today;
     itemsPenjualan = [];
     renderItemsPenjualan();
     inputNoResi.focus();
@@ -554,15 +558,6 @@ function openPenjualanForm() {
 
 btnAddPenjualan.addEventListener('click', openPenjualanForm);
 closePenjualan.addEventListener('click', () => modalPenjualan.style.display = 'none');
-// Membuat modal penjualan transparan saat area luar diklik
-modalPenjualan.addEventListener('click', (e) => {
-    const clickedOutside = !e.target.closest('.modal-content');
-    if(clickedOutside){
-        modalPenjualan.classList.toggle('dimmed');
-    } else {
-        modalPenjualan.classList.remove('dimmed');
-    }
-});
 // Tangani tombol Escape untuk setiap modal
 document.addEventListener('keydown', (e) => {
     if(e.key === 'Escape') {
@@ -639,8 +634,14 @@ formPenjualan.addEventListener('submit', e => {
         return;
     }
     const total = itemsPenjualan.reduce((sum, it) => sum + hitungSubTotal(it), 0);
+    const tanggal = inputTanggalPenjualan.value || new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    if(tanggal > today){
+        alert('Tanggal penjualan tidak boleh melebihi hari ini.');
+        return;
+    }
     const data = {
-        tanggal: new Date().toISOString().split("T")[0],
+        tanggal,
         total,
         items: itemsPenjualan.map(it => ({ id: it.id, qty: it.qty, varIndex: it.varIndex }))
     };
@@ -746,4 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchDataPenjualan();
     setActiveMenu(menuDataBarang);
     showSection(sectionDataBarang);
+    const today = new Date().toISOString().split('T')[0];
+    inputTanggalPenjualan.max = today;
 });
