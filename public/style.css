@@ -212,6 +212,15 @@ table tbody tr:nth-child(even){
 #tablePenjualan th.tgl-col,
 #tablePenjualan td.tgl-col {
     width: 10ch;
+    padding: 18px 8px;
+    white-space: nowrap;
+}
+
+#tablePenjualan th.nota-col,
+#tablePenjualan td.nota-col {
+    width: 15ch;
+    padding: 18px 8px;
+    white-space: nowrap;
 }
 
 /* --- Pesan Sukses dan Info --- */

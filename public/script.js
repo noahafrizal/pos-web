@@ -111,7 +111,7 @@ function renderListPenjualan(data) {
     data.forEach((item) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${item.nota || ''}</td>
+            <td class="nota-col">${item.nota || ''}</td>
             <td class="tgl-col">${formatTanggalDisplay(item.tanggal) || ''}</td>
             <td>${formatRupiah(item.total || 0)}</td>
         `;
